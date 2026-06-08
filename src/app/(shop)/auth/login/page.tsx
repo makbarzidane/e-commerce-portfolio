@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 
 export default function LoginPage() {
   const googleAuthEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+  const portfolioDemoMode = !process.env.DATABASE_URL;
 
   return (
     <section className="brand-surface min-h-screen">
@@ -33,7 +34,7 @@ export default function LoginPage() {
             <CardDescription>Masuk sebagai customer dengan akun Google verified untuk mulai belanja.</CardDescription>
         </CardHeader>
         <Suspense fallback={null}>
-          <LoginRegisterForm googleAuthEnabled={googleAuthEnabled} />
+          <LoginRegisterForm googleAuthEnabled={googleAuthEnabled} portfolioDemoMode={portfolioDemoMode} />
         </Suspense>
         </Card>
       </div>

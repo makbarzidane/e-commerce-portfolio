@@ -6,8 +6,8 @@ import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import { ArrowLeft, CreditCard, Loader2, MapPin, PackageCheck, Trash2, Truck } from "lucide-react";
 import { createCheckoutOrder } from "@/app/(shop)/checkout/actions";
-import { removeCartItem, updateCartQuantity } from "@/app/(shop)/keranjang/actions";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,6 +49,8 @@ type CheckoutCoupon = {
 };
 
 export function CheckoutForm({ cartItems, errorMessage, customerDefaults, paymentMethods, coupons, shippingRates }: CheckoutFormProps) {
+  const [localCartItems, setLocalCartItems] = useState(cartItems);
+  const [syncingIds, setSyncingIds] = useState<string[]>([]);
   const [availableShippingRates, setAvailableShippingRates] = useState(shippingRates);
   const [selectedShippingId, setSelectedShippingId] = useState(shippingRates[0]?.id ?? "");
   const [selectedPaymentId, setSelectedPaymentId] = useState(paymentMethods[0]?.id ?? "");
@@ -59,16 +61,53 @@ export function CheckoutForm({ cartItems, errorMessage, customerDefaults, paymen
   const [district, setDistrict] = useState(customerDefaults.district);
   const [isCheckingShipping, setIsCheckingShipping] = useState(false);
   const [shippingMessage, setShippingMessage] = useState<string | null>(null);
-  const subtotal = useMemo(() => cartItems.reduce((total, item) => total + item.price * item.quantity, 0), [cartItems]);
-  const shipmentWeight = Math.max(500, cartItems.reduce((total, item) => total + item.quantity * 250, 0));
+  const subtotal = useMemo(() => localCartItems.reduce((total, item) => total + item.price * item.quantity, 0), [localCartItems]);
+  const shipmentWeight = Math.max(500, localCartItems.reduce((total, item) => total + item.quantity * 250, 0));
   const selectedShipping = availableShippingRates.find((rate) => rate.id === selectedShippingId) ?? availableShippingRates[0];
   const selectedPayment = paymentMethods.find((method) => method.id === selectedPaymentId) ?? paymentMethods[0];
   const coupon = findCoupon(coupons, couponCode, subtotal);
   const discountTotal = coupon ? calculateDiscount(coupon, subtotal) : 0;
   const shippingCost = selectedShipping?.cost ?? 0;
   const grandTotal = Math.max(0, subtotal - discountTotal) + shippingCost;
-  const isEmpty = cartItems.length === 0;
-  const hasStockIssue = cartItems.some((item) => !item.variant.id || !item.variant.isActive || item.quantity > item.variant.stock);
+  const isEmpty = localCartItems.length === 0;
+  const hasStockIssue = localCartItems.some((item) => !item.variant.id || !item.variant.isActive || item.quantity > item.variant.stock);
+  const isCartSyncing = syncingIds.length > 0;
+
+  async function syncCartItem(id: string, quantity: number) {
+    setSyncingIds((current) => Array.from(new Set([...current, id])));
+    try {
+      await fetch("/api/cart/items", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, quantity }),
+      });
+    } finally {
+      setSyncingIds((current) => current.filter((itemId) => itemId !== id));
+    }
+  }
+
+  function updateLocalQuantity(id: string, quantity: number, stock: number) {
+    const safeQuantity = Math.min(Math.max(0, quantity), stock);
+    setLocalCartItems((current) => {
+      if (safeQuantity < 1) return current.filter((item) => item.id !== id);
+      return current.map((item) => (item.id === id ? { ...item, quantity: safeQuantity } : item));
+    });
+    void syncCartItem(id, safeQuantity);
+  }
+
+  async function removeLocalItem(id: string) {
+    setLocalCartItems((current) => current.filter((item) => item.id !== id));
+    setSyncingIds((current) => Array.from(new Set([...current, id])));
+    try {
+      await fetch("/api/cart/items", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+    } finally {
+      setSyncingIds((current) => current.filter((itemId) => itemId !== id));
+    }
+  }
 
   async function checkShippingRates() {
     setIsCheckingShipping(true);
@@ -170,7 +209,7 @@ export function CheckoutForm({ cartItems, errorMessage, customerDefaults, paymen
           <div className="mb-4 flex flex-col gap-3 rounded-2xl border bg-background/70 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="font-medium">Cek ongkir berdasarkan kode pos</p>
-              <p className="text-sm text-muted-foreground">Berat estimasi paket: {shipmentWeight} gram dari {cartItems.reduce((total, item) => total + item.quantity, 0)} item.</p>
+              <p className="text-sm text-muted-foreground">Berat estimasi paket: {shipmentWeight} gram dari {localCartItems.reduce((total, item) => total + item.quantity, 0)} item.</p>
               {shippingMessage ? <p className="mt-1 text-sm text-muted-foreground">{shippingMessage}</p> : null}
             </div>
             <button type="button" onClick={checkShippingRates} disabled={isCheckingShipping || postalCode.length < 5} className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border bg-background px-3 text-sm font-medium transition hover:bg-muted disabled:opacity-50">
@@ -246,11 +285,11 @@ export function CheckoutForm({ cartItems, errorMessage, customerDefaults, paymen
       <Card className="silk-panel h-fit rounded-2xl shadow-sm lg:sticky lg:top-24">
         <CardHeader>
           <CardTitle className="flex items-center gap-2"><PackageCheck className="size-4" /> Ringkasan Order</CardTitle>
-          <CardDescription>{cartItems.length} item di keranjang</CardDescription>
+          <CardDescription>{localCartItems.length} item di keranjang</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <div className="flex flex-col gap-3">
-            {cartItems.map((item) => (
+            {localCartItems.map((item) => (
               <div key={item.id} className="grid grid-cols-[56px_1fr] gap-3 rounded-xl border bg-background/70 p-2">
                 <Image src={item.product.image} alt={item.product.name} width={80} height={100} className="aspect-[4/5] rounded-lg object-cover" />
                 <div className="min-w-0">
@@ -266,19 +305,17 @@ export function CheckoutForm({ cartItems, errorMessage, customerDefaults, paymen
                   ) : null}
                   <div className="mt-2 flex flex-wrap items-center gap-2">
                     <Input
-                      name={`quantity:${item.id}`}
                       type="number"
                       min="0"
                       max={item.variant.stock}
-                      defaultValue={item.quantity}
+                      value={item.quantity}
+                      onChange={(event) => updateLocalQuantity(item.id, Number.parseInt(event.target.value || "0", 10), item.variant.stock)}
                       className="h-8 w-20"
                     />
-                    <SubmitButton formAction={updateCartQuantity} name="id" value={item.id} type="submit" size="sm" variant="outline" pendingLabel="...">
-                      Update
-                    </SubmitButton>
-                    <SubmitButton formAction={removeCartItem} name="id" value={item.id} type="submit" size="icon-sm" variant="ghost" aria-label="Hapus item" pendingLabel="">
+                    {syncingIds.includes(item.id) ? <Loader2 className="size-4 animate-spin text-muted-foreground" /> : null}
+                    <Button type="button" size="icon-sm" variant="ghost" aria-label="Hapus item" onClick={() => void removeLocalItem(item.id)}>
                       <Trash2 data-icon="only" />
-                    </SubmitButton>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -318,11 +355,12 @@ export function CheckoutForm({ cartItems, errorMessage, customerDefaults, paymen
               <p className="mt-1">{selectedPayment.instructions}</p>
             </div>
           ) : null}
-          <SubmitButton type="submit" size="lg" className="w-full" disabled={isEmpty || hasStockIssue} pendingLabel="Membuat pesanan...">
+          <SubmitButton type="submit" size="lg" className="w-full" disabled={isEmpty || hasStockIssue || isCartSyncing} pendingLabel="Membuat pesanan...">
             Buat Pesanan
           </SubmitButton>
           {isEmpty ? <p className="text-center text-xs text-muted-foreground">Minimal harus memesan 1 produk untuk melanjutkan pembelian.</p> : null}
           {hasStockIssue ? <p className="text-center text-xs text-destructive">Ada item dengan stok tidak cukup. Update keranjang terlebih dahulu.</p> : null}
+          {isCartSyncing ? <p className="text-center text-xs text-muted-foreground">Menyimpan perubahan keranjang...</p> : null}
         </CardContent>
       </Card>
     </form>

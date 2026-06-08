@@ -1,16 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Eye, Heart, ShoppingBag, Zap } from "lucide-react";
-import { addToCart, buyNow } from "@/app/(shop)/keranjang/actions";
+import { Eye } from "lucide-react";
+import { AddToCartButton, WishlistToggleButton } from "@/components/product/product-actions";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { SubmitButton } from "@/components/ui/submit-button";
-import { toggleWishlist } from "@/app/(shop)/wishlist/actions";
 import { formatCurrency, getDiscountPercent } from "@/lib/format";
 import type { StoreProduct } from "@/lib/store-data";
 
-export function ProductCard({ product, wishlistReturnTo }: { product: StoreProduct; wishlistReturnTo?: string }) {
+export function ProductCard({ product }: { product: StoreProduct; wishlistReturnTo?: string }) {
   const price = product.discountPrice ?? product.normalPrice;
   const discount = getDiscountPercent(product.normalPrice, product.discountPrice);
   const featuredLabel = product.labels.find((label) => label !== "diskon");
@@ -40,22 +38,7 @@ export function ProductCard({ product, wishlistReturnTo }: { product: StoreProdu
             </Link>
             <p className="mt-1 text-sm text-muted-foreground">{product.category}</p>
           </div>
-          <form action={toggleWishlist}>
-            <input type="hidden" name="productSlug" value={product.slug} />
-            {wishlistReturnTo ? <input type="hidden" name="returnTo" value={wishlistReturnTo} /> : null}
-            <SubmitButton
-              type="submit"
-              variant={isWishlisted ? "default" : "ghost"}
-              size="icon-sm"
-              aria-pressed={isWishlisted}
-              aria-label={isWishlisted ? "Hapus dari wishlist" : "Tambah wishlist"}
-              title={isWishlisted ? "Sudah di wishlist" : "Tambah wishlist"}
-              className={isWishlisted ? "rounded-full shadow-sm shadow-primary/20 ring-2 ring-primary/15" : "rounded-full"}
-              pendingLabel=""
-            >
-              <Heart data-icon="only" className={isWishlisted ? "fill-current" : ""} />
-            </SubmitButton>
-          </form>
+          <WishlistToggleButton productSlug={product.slug} initialWishlisted={isWishlisted} iconOnly className={isWishlisted ? "ring-2 ring-primary/15" : ""} />
         </div>
         <div className="flex flex-wrap gap-1.5">
           {product.variants.slice(0, 4).map((variant) => (
@@ -76,20 +59,10 @@ export function ProductCard({ product, wishlistReturnTo }: { product: StoreProdu
       </CardContent>
       <CardFooter className="grid gap-2 border-t bg-muted/35 p-3">
         {defaultVariant ? (
-          <form className="grid grid-cols-2 gap-2">
-            <input type="hidden" name="productSlug" value={product.slug} />
-            <input type="hidden" name="variantSku" value={defaultVariant.sku} />
-            <input type="hidden" name={`quantity:${defaultVariant.sku}`} value="1" />
-            {wishlistReturnTo ? <input type="hidden" name="returnTo" value={wishlistReturnTo} /> : null}
-            <SubmitButton formAction={addToCart} type="submit" variant="outline" className="w-full rounded-xl px-2 text-xs sm:text-sm" pendingLabel="...">
-              <ShoppingBag data-icon="inline-start" />
-              Keranjang
-            </SubmitButton>
-            <SubmitButton formAction={buyNow} type="submit" className="w-full rounded-xl px-2 text-xs sm:text-sm" pendingLabel="...">
-              <Zap data-icon="inline-start" />
-              Beli
-            </SubmitButton>
-          </form>
+          <div className="grid grid-cols-2 gap-2">
+            <AddToCartButton productSlug={product.slug} variantSku={defaultVariant.sku} variant="outline" className="w-full rounded-xl px-2 text-xs sm:text-sm" />
+            <AddToCartButton productSlug={product.slug} variantSku={defaultVariant.sku} mode="buy" variant="default" className="w-full rounded-xl px-2 text-xs sm:text-sm" />
+          </div>
         ) : null}
         <Link href={`/produk/${product.slug}`} className={buttonVariants({ variant: "secondary", className: "w-full rounded-xl shadow-sm shadow-primary/10" })}>
           <Eye data-icon="inline-start" />

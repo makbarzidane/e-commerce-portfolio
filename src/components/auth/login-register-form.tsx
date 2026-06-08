@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export function LoginRegisterForm({ googleAuthEnabled }: { googleAuthEnabled: boolean }) {
+export function LoginRegisterForm({ googleAuthEnabled, portfolioDemoMode = false }: { googleAuthEnabled: boolean; portfolioDemoMode?: boolean }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
@@ -43,6 +43,25 @@ export function LoginRegisterForm({ googleAuthEnabled }: { googleAuthEnabled: bo
 
   function handleGoogleLogin() {
     void signIn("google", { callbackUrl });
+  }
+
+  function handleDemoCustomerLogin() {
+    setMessage(null);
+    startTransition(async () => {
+      const result = await signIn("credentials", {
+        email: "customer@zimeirahijab.test",
+        password: "password123",
+        redirect: false,
+      });
+
+      if (result?.ok) {
+        router.push(callbackUrl);
+        router.refresh();
+        return;
+      }
+
+      setMessage("Mode demo customer belum tersedia.");
+    });
   }
 
   const registered = searchParams.get("registered") === "1";
@@ -94,9 +113,11 @@ export function LoginRegisterForm({ googleAuthEnabled }: { googleAuthEnabled: bo
           <Link href="/auth/reset-password" className="mt-3 inline-flex text-sm font-medium text-primary hover:underline">
             Lupa password?
           </Link>
-          <div className="mt-4 rounded-xl bg-muted/60 p-3 text-xs text-muted-foreground">
-            Demo customer: <span className="font-medium text-foreground">customer@zimeirahijab.test</span> / <span className="font-medium text-foreground">password123</span>
-          </div>
+          {portfolioDemoMode ? (
+            <Button type="button" variant="outline" className="mt-4 w-full" disabled={isPending} onClick={handleDemoCustomerLogin}>
+              Masuk sebagai Customer Demo
+            </Button>
+          ) : null}
         </TabsContent>
         <TabsContent value="register" className="mt-5">
           <form action={registerCustomer} className="grid gap-4">

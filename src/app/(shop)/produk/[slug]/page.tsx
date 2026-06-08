@@ -1,13 +1,11 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
-import { Heart, ShoppingBag, Zap } from "lucide-react";
-import { addToCart, buyNow } from "@/app/(shop)/keranjang/actions";
-import { toggleWishlist } from "@/app/(shop)/wishlist/actions";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { SubmitButton } from "@/components/ui/submit-button";
+import { ProductPurchasePanel } from "@/components/product/product-purchase-panel";
+import { WishlistToggleButton } from "@/components/product/product-actions";
 import { products } from "@/lib/data";
 import { authOptions } from "@/lib/auth";
 import { formatCurrency, getDiscountPercent } from "@/lib/format";
@@ -73,71 +71,8 @@ export default async function ProductDetailPage({
         </div>
         <StatusNotice cart={status.cart} wishlist={status.wishlist} error={status.error} auth={status.auth} />
         <Separator />
-        <div className="grid gap-4">
-          <div>
-            <p className="mb-2 text-sm font-medium">Bahan</p>
-            <div className="flex flex-wrap gap-2">
-              {product.materials.map((material) => (
-                <Badge key={material} variant="outline">{material}</Badge>
-              ))}
-            </div>
-          </div>
-        </div>
-        <form className="silk-panel flex flex-col gap-4 rounded-2xl border p-4 shadow-sm">
-          <input type="hidden" name="productSlug" value={product.slug} />
-          <div>
-            <p className="font-medium">Pilih varian dan jumlah</p>
-            <p className="mt-1 text-sm text-muted-foreground">Isi quantity pada satu atau beberapa varian untuk dibeli bersamaan.</p>
-          </div>
-          <div className="overflow-hidden rounded-2xl border bg-background/80">
-            {product.variants.map((variant) => {
-              const isAvailable = variant.stock > 0;
-
-              return (
-                <label key={variant.sku} className="grid gap-3 border-b px-4 py-3 last:border-b-0 sm:grid-cols-[1fr_auto] sm:items-center">
-                  <span className="flex items-center gap-3">
-                    <span className="size-8 rounded-full border shadow-sm" style={{ backgroundColor: variant.colorHex }} />
-                    <span>
-                      <span className="block text-sm font-medium">{variant.color} / {variant.material}</span>
-                      <span className="text-xs text-muted-foreground">SKU {variant.sku} - Stok {variant.stock}</span>
-                    </span>
-                  </span>
-                  <span className="flex items-center gap-2">
-                    <input type="hidden" name="variantSku" value={variant.sku} />
-                    <span className="text-xs text-muted-foreground">Qty</span>
-                    <input
-                      name={`quantity:${variant.sku}`}
-                      type="number"
-                      min="0"
-                      max={variant.stock}
-                      defaultValue={isAvailable ? "0" : "0"}
-                      disabled={!isAvailable}
-                      className="h-9 w-24 rounded-lg border border-input bg-background px-3 text-sm disabled:opacity-50"
-                    />
-                  </span>
-                </label>
-              );
-            })}
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <SubmitButton formAction={addToCart} type="submit" size="lg" variant="outline" className="w-full" pendingLabel="Menambahkan...">
-              <ShoppingBag data-icon="inline-start" />
-              Masukkan Keranjang
-            </SubmitButton>
-            <SubmitButton formAction={buyNow} type="submit" size="lg" className="w-full" pendingLabel="Menuju checkout...">
-              <Zap data-icon="inline-start" />
-              Beli Sekarang
-            </SubmitButton>
-          </div>
-        </form>
-        <form action={toggleWishlist}>
-          <input type="hidden" name="productSlug" value={product.slug} />
-          <input type="hidden" name="returnTo" value={`/produk/${product.slug}`} />
-          <SubmitButton type="submit" variant={isWishlisted ? "default" : "outline"} size="lg" pendingLabel="Memproses...">
-            <Heart data-icon="inline-start" className={isWishlisted ? "fill-current" : ""} />
-            {isWishlisted ? "Sudah di Wishlist" : "Tambah Wishlist"}
-          </SubmitButton>
-        </form>
+        <ProductPurchasePanel productSlug={product.slug} materials={product.materials} variants={product.variants} />
+        <WishlistToggleButton productSlug={product.slug} initialWishlisted={isWishlisted} />
         <section className="grid gap-3 rounded-2xl border bg-card/80 p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>

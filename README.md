@@ -36,14 +36,9 @@ https://ecommerce-hijab-iota.vercel.app
 - Phone verification helper is prepared for WhatsApp/SMS providers such as Fonnte.
 - Prisma seed includes demo categories, products, variants, orders, and users.
 
-## Demo Accounts
+## Demo Access
 
-After running the database seed:
-
-- Admin: `admin@zimeirahijab.test` / `password123`
-- Customer: `customer@zimeirahijab.test` / `password123`
-
-Do not use these credentials in production. Create a real admin account and replace the demo password before a public launch.
+The Vercel portfolio deployment can expose demo login buttons for customer and admin testing when no production database is attached. Credentials are intentionally not displayed in the UI. For production, create real users in the database and disable demo-only access by configuring `DATABASE_URL`.
 
 ## Getting Started
 
