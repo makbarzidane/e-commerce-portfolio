@@ -106,7 +106,7 @@ export async function createCheckoutOrder(formData: FormData) {
     const subtotal = orderItems.reduce((total, item) => total + item.price * item.quantity, 0);
     const weightGram = Math.max(500, cartItems.reduce((total, item) => total + item.quantity * 250, 0));
     const serverRates = await getShippingRates({
-      originCity: process.env.SHIPPING_ORIGIN_CITY ?? "Jakarta",
+      originCity: process.env.SHIPPING_ORIGIN_CITY ?? "Pagar Alam",
       destinationCity: city,
       originPostalCode: process.env.SHIPPING_ORIGIN_POSTAL_CODE,
       destinationPostalCode: postalCode,

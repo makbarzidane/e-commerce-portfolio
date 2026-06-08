@@ -5,7 +5,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Zimeira Hijab Store",
-  description: "Demo custom ecommerce hijab store dengan Next.js, Prisma, dan shadcn/ui.",
+  description: "Fictional hijab ecommerce brand from Pagar Alam, founded in 2026, built with Next.js, Prisma, and shadcn/ui.",
 };
 
 export default function RootLayout({

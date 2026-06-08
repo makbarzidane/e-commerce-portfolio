@@ -41,8 +41,8 @@ export default async function CheckoutPage({
     },
   });
   const shippingRates = await getShippingRates({
-    originCity: "Jakarta",
-    destinationCity: "Jakarta Selatan",
+    originCity: "Pagar Alam",
+    destinationCity: "Pagar Alam",
     weightGram: Math.max(500, cartItems.reduce((total, item) => total + item.quantity * 250, 0)),
   });
   const params = await searchParams;

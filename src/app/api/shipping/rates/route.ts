@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   }
 
   const rates = await getShippingRates({
-    originCity: process.env.SHIPPING_ORIGIN_CITY ?? "Jakarta",
+    originCity: process.env.SHIPPING_ORIGIN_CITY ?? "Pagar Alam",
     destinationCity: String(payload?.destinationCity ?? ""),
     originPostalCode: process.env.SHIPPING_ORIGIN_POSTAL_CODE,
     destinationPostalCode,

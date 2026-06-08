@@ -8,7 +8,7 @@ export function SiteFooter() {
         <div className="flex flex-col gap-3">
           <p className="text-lg font-semibold">{storeSettings.name}</p>
           <p className="max-w-md text-sm leading-6 text-muted-foreground">
-            Demo ecommerce hijab lokal dengan fondasi produk, checkout, dan admin panel untuk pengembangan lanjut.
+            Fictional hijab ecommerce brand from Pagar Alam, founded in 2026, with catalog, checkout, and admin CMS foundations.
           </p>
         </div>
         <div className="flex flex-col gap-2 text-sm">

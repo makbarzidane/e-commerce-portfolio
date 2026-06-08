@@ -5,6 +5,25 @@ import bcrypt from "bcryptjs";
 import { getPrisma } from "@/lib/prisma";
 
 const googleAuthEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+const demoUsers = [
+  {
+    id: "demo-admin",
+    name: "Admin Zimeira",
+    email: "admin@zimeirahijab.test",
+    role: "ADMIN" as const,
+  },
+  {
+    id: "demo-customer",
+    name: "Nadia Zimeira",
+    email: "customer@zimeirahijab.test",
+    role: "CUSTOMER" as const,
+  },
+];
+
+function getDemoUser(email: string, password?: string) {
+  if (process.env.DATABASE_URL || password !== "password123") return null;
+  return demoUsers.find((user) => user.email === email) ?? null;
+}
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -32,22 +51,26 @@ export const authOptions: NextAuthOptions = {
           if (!credentials?.email || !credentials.password) return null;
           const email = credentials.email.trim().toLowerCase();
 
-          const user = await getPrisma().user.findUnique({
-            where: { email },
-          });
+          try {
+            const user = await getPrisma().user.findUnique({
+              where: { email },
+            });
 
-          if (!user?.password) return null;
+            if (!user?.password) return null;
 
-          const isValid = await bcrypt.compare(credentials.password, user.password);
-          if (!isValid) return null;
+            const isValid = await bcrypt.compare(credentials.password, user.password);
+            if (!isValid) return null;
 
-          return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            image: user.image,
-            role: user.role,
-          };
+            return {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              image: user.image,
+              role: user.role,
+            };
+          } catch {
+            return getDemoUser(email, credentials.password);
+          }
         },
       }),
   ],
@@ -80,14 +103,22 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       const email = user?.email ?? token.email;
       if (email) {
-        const dbUser = await getPrisma().user.findUnique({
-          where: { email },
-          select: { id: true, role: true },
-        });
+        try {
+          const dbUser = await getPrisma().user.findUnique({
+            where: { email },
+            select: { id: true, role: true },
+          });
 
-        if (dbUser) {
-          token.id = dbUser.id;
-          token.role = dbUser.role;
+          if (dbUser) {
+            token.id = dbUser.id;
+            token.role = dbUser.role;
+          }
+        } catch {
+          const demoUser = demoUsers.find((item) => item.email === email);
+          if (demoUser) {
+            token.id = demoUser.id;
+            token.role = demoUser.role;
+          }
         }
       }
       return token;

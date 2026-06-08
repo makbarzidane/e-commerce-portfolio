@@ -194,7 +194,7 @@ async function main() {
       storeName: "Zimeira Hijab Store",
       email: "hello@zimeirahijab.test",
       phone: "0812-0000-2026",
-      address: "Jakarta, Indonesia",
+      address: "Pagar Alam, South Sumatra, Indonesia",
       instagram: "@zimeirahijab.demo",
       whatsapp: "081200002026",
     },

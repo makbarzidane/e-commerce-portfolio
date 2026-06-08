@@ -55,7 +55,7 @@ export default async function CleanInvoicePage({ params }: { params: Promise<{ o
           <div>
             <p className="text-sm font-semibold">Dari</p>
             <p className="mt-2 font-medium">Zimeira Hijab Store</p>
-            <p className="text-sm text-[#7c6860]">Demo ecommerce hijab lokal</p>
+            <p className="text-sm text-[#7c6860]">Fictional hijab brand from Pagar Alam, founded in 2026</p>
           </div>
           <div>
             <p className="text-sm font-semibold">Ditagihkan kepada</p>
