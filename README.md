@@ -1,82 +1,62 @@
 # Zimeira Hijab Store
 
-Demo custom ecommerce website bertema hijab untuk tahap fondasi. Project ini memakai Next.js App Router, TypeScript, Tailwind CSS, shadcn/ui, Prisma ORM, PostgreSQL, dan Auth.js / NextAuth.
+Zimeira Hijab Store is a demo full-stack ecommerce website for a local hijab brand. The project is built as a portfolio-ready foundation with customer shopping flows, admin CMS flows, database models, authentication, checkout, payment/shipping adapters, and integration placeholders for production services.
 
-## Fitur Saat Ini
+## Live Demo
 
-- Customer pages: Beranda, Katalog Produk, Detail Produk, Keranjang, Checkout, Tentang, Kontak, Login/Register, Akun Saya, Riwayat Pesanan.
-- Admin pages: Login Admin, Dashboard, Kelola Produk, Kategori, Varian Produk, Pesanan, Customer, Voucher, Banner Promo, Pengaturan Toko.
-- Product foundation: nama, slug, kategori, deskripsi, harga normal/diskon, foto placeholder, variasi warna, bahan, stok, label, status aktif.
-- Prisma schema awal: User, Product, ProductCategory, ProductImage, ProductVariant, Cart, CartItem, Order, OrderItem, Payment, ShippingAddress, Coupon, Banner, Review, Wishlist, StoreSetting.
-- Auth.js / NextAuth credentials login untuk admin dan Google/Gmail verified login untuk customer jika env Google diisi.
-- Register customer real ke database, dengan validasi awal agar email testing/disposable ditolak.
-- Checkout customer mewajibkan nomor HP terverifikasi; mode demo OTP tersedia di halaman Akun dan siap diganti provider SMS/WhatsApp real.
-- Proteksi route admin berdasarkan role `ADMIN`.
-- Katalog, akun, pesanan, dan admin dashboard membaca Prisma jika database aktif, dengan fallback dummy untuk mode demo.
-- CRUD dasar admin: kategori, produk, varian, voucher, banner promo, dan pengaturan toko.
-- Admin dapat edit produk, kategori, varian, voucher, banner, status pesanan, status pembayaran, dan data resi/tracking.
-- Cart database untuk user/session, termasuk tambah produk, update qty, dan hapus item.
-- Wishlist tersimpan untuk user login.
-- Detail produk mendukung pembelian beberapa varian sekaligus dengan dua aksi berbeda: `Masukkan Keranjang` dan `Beli Sekarang`.
-- Checkout database membuat ShippingAddress, Order, OrderItem, Payment, memilih jasa kirim, memilih metode pembayaran, lalu mengosongkan cart.
-- Checkout mendukung voucher aktif, validasi minimum belanja, pencatatan diskon, dan pengurangan stok varian otomatis.
-- Halaman sukses checkout menampilkan instruksi pembayaran, ringkasan order, dan detail pengiriman.
-- Admin dapat update status order, status payment, jasa kirim, estimasi, dan nomor resi.
-- Customer dapat melihat detail pesanan, item, payment status, alamat, dan resi pengiriman.
-- Cart dan checkout memvalidasi stok agar quantity tidak melebihi stok varian.
-- UI form penting memiliki loading state, dan aksi hapus CMS/pesanan/keranjang memakai konfirmasi agar tidak mudah salah klik.
-- Inventory log mencatat stok keluar, stok kembali, dan adjustment stok admin melalui `StockMovement`.
-- Admin dapat melihat riwayat inventory di `/admin/inventory`.
-- Admin dapat membuka detail order dari `/admin/pesanan/[orderNumber]`.
-- Admin dapat melihat laporan penjualan mingguan, bulanan, dan tahunan di `/admin/laporan`.
-- Admin dapat export data penjualan CSV melalui endpoint admin-only `/api/admin/reports/sales/export`.
-- Mode demo payment/shipping aktif: manual transfer dan fallback ongkir courier demo. Midtrans Snap akan membuat transaksi real jika env key diisi.
-- Webhook Midtrans memvalidasi signature dan mengubah status payment/order otomatis.
-- Halaman sukses checkout dapat menampilkan link konfirmasi WhatsApp jika nomor toko sudah diisi.
-- Upload gambar produk admin siap Cloudinary melalui route `/api/admin/upload/image`; jika env Cloudinary belum diisi, form tetap dapat memakai URL gambar manual.
-- Halaman pengaturan admin menampilkan status integrasi Midtrans, RajaOngkir/Biteship, dan Cloudinary.
-- Dummy data untuk kategori hijab, produk, varian, cart, order, dashboard, dan akun demo.
+Production URL:
+
+https://ecommerce-hijab-iota.vercel.app
 
 ## Tech Stack
 
 - Next.js App Router
 - TypeScript
 - Tailwind CSS v4
-- shadcn/ui
+- shadcn/ui-style components
 - Prisma ORM
 - PostgreSQL
-- NextAuth credentials provider untuk admin/customer demo dan Google provider untuk customer production
+- Auth.js / NextAuth
+- Vercel deployment
 
-## Instalasi
+## Main Features
+
+- Customer storefront with home, catalog, product detail, cart, checkout, account, order status, tracking, help, about, and contact pages.
+- Product catalog with categories, search, filters, wishlist, product variants, stock, labels, discounts, and placeholder images.
+- Cart and checkout backed by database records when PostgreSQL is configured.
+- Checkout supports shipping address, courier service selection, voucher discount, stock validation, order creation, and payment records.
+- Payment adapter supports demo/manual payment and is prepared for Midtrans Snap.
+- Shipping adapter supports demo fallback and is prepared for RajaOngkir or Biteship.
+- Customer order detail includes payment continuation, order status, tracking number, invoice page, return request, and review flow.
+- Admin panel with dashboard, products, categories, variants, orders, customers, vouchers, banners, store settings, reports, inventory logs, audit logs, and returns.
+- Admin can update order status, payment status, shipping data, tracking number, stock, and CMS data.
+- Sales report page supports weekly, monthly, and yearly summaries plus CSV export.
+- Product image upload route is prepared for Cloudinary.
+- Email notification helper is prepared for Resend.
+- Phone verification helper is prepared for WhatsApp/SMS providers such as Fonnte.
+- Prisma seed includes demo categories, products, variants, orders, and users.
+
+## Demo Accounts
+
+After running the database seed:
+
+- Admin: `admin@zimeirahijab.test` / `password123`
+- Customer: `customer@zimeirahijab.test` / `password123`
+
+Do not use these credentials in production. Create a real admin account and replace the demo password before a public launch.
+
+## Getting Started
+
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-Salin environment example:
+Copy the environment template:
 
 ```bash
 copy .env.example .env
-```
-
-Isi `DATABASE_URL` dengan koneksi PostgreSQL lokal atau hosted. Ganti `NEXTAUTH_SECRET` dengan string acak yang panjang sebelum production.
-
-Untuk login Google/Gmail customer, isi `GOOGLE_CLIENT_ID` dan `GOOGLE_CLIENT_SECRET` dari Google Cloud Console. Jika kosong, tombol Google otomatis disembunyikan dan login manual tetap berjalan.
-
-Nomor HP customer harus diverifikasi sebelum checkout. Jika `FONNTE_API_KEY` kosong, OTP tampil lewat toast demo; jika key diisi, OTP dikirim melalui provider.
-
-## Setup Database
-
-Project ini dapat memakai PostgreSQL lokal. Pada setup saat ini database berjalan melalui Docker container:
-
-```bash
-docker start zimeira-postgres
-```
-
-Koneksi lokal yang dipakai di `.env`:
-
-```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/zimeira_hijab_store?schema=public"
 ```
 
 Generate Prisma Client:
@@ -85,115 +65,133 @@ Generate Prisma Client:
 npm run prisma:generate
 ```
 
-Push schema ke database:
+Push the database schema:
 
 ```bash
 npm run db:push
 ```
 
-Isi dummy data:
+Seed demo data:
 
 ```bash
 npm run db:seed
 ```
 
-Jika ingin menghentikan database lokal:
-
-```bash
-docker stop zimeira-postgres
-```
-
-Akun demo setelah seed:
-
-- Admin: `admin@zimeirahijab.test` / `password123`
-- Customer: `customer@zimeirahijab.test` / `password123`
-
-## Menjalankan Project
+Start the development server:
 
 ```bash
 npm run dev
 ```
 
-Buka `http://localhost:3000`.
+Open:
 
-## Alur Admin
+```text
+http://localhost:3000
+```
 
-1. Jalankan setup database dan seed.
-2. Buka `/admin/login`.
-3. Login dengan `admin@zimeirahijab.test` / `password123`.
-4. Kelola kategori, produk, varian, voucher, banner, dan pengaturan toko dari admin panel.
+## Environment Variables
 
-Tanpa login admin, route `/admin` akan diarahkan ke `/admin/login`.
+Required for a real production deployment:
 
-## Struktur Folder Penting
+```env
+DATABASE_URL=""
+NEXTAUTH_SECRET=""
+NEXTAUTH_URL=""
+```
 
-- `src/app` berisi route App Router customer, admin, dan API Auth.
-- `src/components/layout` berisi header dan footer customer.
-- `src/components/product` berisi card produk dan filter katalog.
-- `src/components/checkout` berisi checkout form interaktif untuk pilihan ongkir/pembayaran dan total order live.
-- `src/components/admin` berisi shell admin dan stat card.
-- `src/components/auth` berisi form login customer/admin.
-- `src/components/ui` berisi komponen shadcn/ui.
-- `src/components/ui/submit-button.tsx` berisi tombol submit dengan loading dan konfirmasi aksi.
-- `src/lib/data.ts` berisi dummy data untuk UI tahap pertama.
-- `src/lib/store-data.ts` berisi data access katalog dengan fallback dummy.
-- `src/lib/admin-data.ts` berisi data access admin dengan fallback dummy.
-- `src/lib/sales-report.ts` berisi data laporan penjualan dan export CSV.
-- `src/lib/notifications.ts` berisi helper link WhatsApp order.
-- `src/lib/customer-data.ts` berisi data access akun dan pesanan customer.
-- `src/lib/cart.ts` berisi cart session dan cart item data access.
-- `src/lib/integrations` berisi adapter awal payment, shipping, dan upload.
-- `src/app/api/admin/upload/image/route.ts` berisi upload gambar admin ke Cloudinary.
-- `src/app/api/admin/reports/sales/export/route.ts` berisi export CSV laporan penjualan admin.
-- `src/lib/auth.ts` berisi konfigurasi NextAuth.
-- `src/lib/admin.ts` berisi guard role admin.
-- `src/lib/prisma.ts` berisi lazy Prisma Client.
-- `src/app/admin/actions.ts` berisi Server Actions admin.
-- `src/app/(shop)/pesanan/[orderNumber]` berisi detail pesanan customer.
-- `src/app/(shop)/checkout/actions.ts` berisi Server Action checkout.
-- `src/app/(shop)/keranjang/actions.ts` berisi Server Actions cart.
-- `src/app/(shop)/wishlist/actions.ts` berisi Server Action wishlist.
-- `src/app/api/webhooks/midtrans/route.ts` berisi webhook Midtrans dengan validasi signature dan update status payment/order.
-- `src/app/admin/inventory` berisi riwayat pergerakan stok.
-- `src/app/admin/pesanan/[orderNumber]` berisi detail order admin.
-- `prisma/schema.prisma` berisi schema database.
-- `prisma/seed.js` berisi dummy seed database.
-- `public/images/products` berisi placeholder image produk.
+Optional integrations:
 
-## Rencana Pengembangan Berikutnya
+```env
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+MIDTRANS_SERVER_KEY=""
+MIDTRANS_CLIENT_KEY=""
+MIDTRANS_IS_PRODUCTION="false"
+RAJAONGKIR_API_KEY=""
+BITESHIP_API_KEY=""
+SHIPPING_ORIGIN_CITY=""
+SHIPPING_ORIGIN_POSTAL_CODE=""
+CLOUDINARY_CLOUD_NAME=""
+CLOUDINARY_API_KEY=""
+CLOUDINARY_API_SECRET=""
+RESEND_API_KEY=""
+RESEND_FROM_EMAIL=""
+FONNTE_API_KEY=""
+```
 
-- Integrasi Midtrans Snap/Core API real dan redirect ke payment URL.
-- Validasi signature webhook Midtrans dan update status otomatis.
-- Kalkulasi ongkir real RajaOngkir atau Biteship berdasarkan kota, berat, dan layanan kurir.
-- Tracking pengiriman real dari provider kurir dan notifikasi status pesanan untuk customer.
-- Optimasi gambar produk, multi-image gallery, dan hapus asset Cloudinary saat produk dihapus/nonaktif.
-- Email notifikasi pesanan.
-- Review produk dan rating customer.
-- Audit keamanan, rate limiting form, dan hardening sebelum production.
+## Local Database
 
-## Checklist Sebelum Deploy
+This project expects PostgreSQL. For local development, you can use any PostgreSQL instance and set `DATABASE_URL` in `.env`.
 
-1. Pastikan `npm run lint`, `npx tsc --noEmit`, dan `npm run build` lolos.
-2. Buat database PostgreSQL production, misalnya Neon, Supabase, Railway, atau provider lain.
-3. Isi environment production:
-   - `DATABASE_URL`
-   - `NEXTAUTH_SECRET`
-   - `NEXTAUTH_URL`
-   - `GOOGLE_CLIENT_ID`
-   - `GOOGLE_CLIENT_SECRET`
-   - `RESEND_API_KEY`
-   - `RESEND_FROM_EMAIL`
-   - `FONNTE_API_KEY`
-   - `MIDTRANS_SERVER_KEY`
-   - `MIDTRANS_CLIENT_KEY`
-   - `RAJAONGKIR_API_KEY` atau `BITESHIP_API_KEY`
-   - `CLOUDINARY_CLOUD_NAME`
-   - `CLOUDINARY_API_KEY`
-   - `CLOUDINARY_API_SECRET`
-4. Jalankan `npm run prisma:generate`, `npm run db:push`, lalu seed awal jika masih perlu data demo.
-5. Ganti password akun admin demo atau buat admin production baru.
-6. Test ulang flow customer: register, login, wishlist, cart, checkout, payment, dan riwayat pesanan.
-7. Test ulang flow admin: CRUD produk/kategori/varian/voucher/banner, update order, export laporan, dan upload gambar.
-8. Set webhook Midtrans production ke `/api/webhooks/midtrans`.
-9. Deploy ke Vercel atau platform Next.js lain.
-10. Setelah deploy, cek halaman publik, admin login, database production, dan export CSV dari URL production.
+Example local connection:
+
+```env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/zimeira_hijab_store?schema=public"
+```
+
+If you use the existing local Docker container from this workspace:
+
+```bash
+docker start zimeira-postgres
+```
+
+## Important Folders
+
+- `src/app` contains App Router routes for storefront, admin, and API endpoints.
+- `src/components` contains UI, layout, product, checkout, admin, and auth components.
+- `src/lib` contains data access, auth config, Prisma client, formatting helpers, integrations, reports, notifications, and rate limits.
+- `src/lib/integrations` contains payment, shipping, and upload adapters.
+- `prisma/schema.prisma` contains the database schema.
+- `prisma/seed.js` contains demo seed data.
+- `public/images/products` contains placeholder product images.
+- `docs/QA_CHECKLIST.md` contains the end-to-end QA checklist.
+- `docs/OPERATIONS.md` contains operational notes for backup, email, OTP, and integrations.
+
+## Deployment Notes
+
+The project is deployed to Vercel. Before using production features, configure these variables in the Vercel dashboard:
+
+- `DATABASE_URL`
+- `NEXTAUTH_SECRET`
+- `NEXTAUTH_URL`
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `RESEND_API_KEY`
+- `RESEND_FROM_EMAIL`
+- `FONNTE_API_KEY`
+- `MIDTRANS_SERVER_KEY`
+- `MIDTRANS_CLIENT_KEY`
+- `RAJAONGKIR_API_KEY` or `BITESHIP_API_KEY`
+- `CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET`
+
+For portfolio mode, the public pages can render with demo fallback data, but authentication, checkout, admin CMS, and order management need a real PostgreSQL database.
+
+## Production Roadmap
+
+- Connect a hosted PostgreSQL database and seed safe demo data.
+- Configure Google OAuth with verified email login.
+- Verify a Resend sender domain and replace the default sender.
+- Integrate Midtrans Snap payment and test webhook success, failed, expired, and refund events.
+- Integrate RajaOngkir or Biteship for real shipping rates and package tracking.
+- Configure Cloudinary and test real product image uploads from the admin panel.
+- Replace demo phone OTP with a real WhatsApp/SMS provider.
+- Add stronger production rate limits and monitoring.
+- Run the full checklist in `docs/QA_CHECKLIST.md` before sharing the portfolio publicly.
+
+## Scripts
+
+```bash
+npm run dev
+npm run build
+npm run lint
+npm run prisma:generate
+npm run db:push
+npm run db:seed
+npm run db:backup
+```
+
+## License
+
+This is a demo ecommerce project for portfolio and development purposes.
