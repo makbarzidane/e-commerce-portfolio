@@ -78,7 +78,7 @@ export function ProductFilters({ categories, products }: { categories: StoreCate
         </div>
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {filtered.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product.id} product={product} wishlistReturnTo="/produk" />
           ))}
         </div>
       </section>

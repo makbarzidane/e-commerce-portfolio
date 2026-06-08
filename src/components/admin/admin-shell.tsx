@@ -19,6 +19,8 @@ const adminNav = [
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
+  const isPortfolioDemo = !process.env.DATABASE_URL;
+
   return (
     <div className="min-h-screen bg-muted/35">
       <aside className="fixed inset-y-0 left-0 hidden w-72 border-r bg-background/92 p-5 shadow-xl shadow-primary/5 backdrop-blur lg:block">
@@ -73,6 +75,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               );
             })}
           </nav>
+          {isPortfolioDemo ? (
+            <div className="rounded-2xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-primary">
+              Portfolio demo mode aktif. Admin panel bisa dicoba, tetapi perubahan data hanya disimulasikan dan akan kembali seperti semula.
+            </div>
+          ) : null}
           {children}
         </div>
       </main>

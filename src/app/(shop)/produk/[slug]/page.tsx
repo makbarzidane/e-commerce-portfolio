@@ -23,7 +23,7 @@ export default async function ProductDetailPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ cart?: string; wishlist?: string; error?: string }>;
+  searchParams: Promise<{ cart?: string; wishlist?: string; error?: string; auth?: string }>;
 }) {
   const { slug } = await params;
   const status = await searchParams;
@@ -71,7 +71,7 @@ export default async function ProductDetailPage({
             {product.discountPrice ? <p className="text-muted-foreground line-through">{formatCurrency(product.normalPrice)}</p> : null}
           </div>
         </div>
-        <StatusNotice cart={status.cart} wishlist={status.wishlist} error={status.error} />
+        <StatusNotice cart={status.cart} wishlist={status.wishlist} error={status.error} auth={status.auth} />
         <Separator />
         <div className="grid gap-4">
           <div>
@@ -164,9 +164,16 @@ export default async function ProductDetailPage({
   );
 }
 
-function StatusNotice({ cart, wishlist, error }: { cart?: string; wishlist?: string; error?: string }) {
+function StatusNotice({ cart, wishlist, error, auth }: { cart?: string; wishlist?: string; error?: string; auth?: string }) {
   if (cart === "added") {
     return <Notice>Produk berhasil ditambahkan ke keranjang. Kamu bisa tambah varian lain tanpa pindah halaman.</Notice>;
+  }
+  if (auth === "required") {
+    return (
+      <Notice tone="info">
+        Untuk lanjut membeli, silakan login atau buat akun terlebih dahulu. Produk tetap bisa kamu masukkan ke keranjang sebagai guest.
+      </Notice>
+    );
   }
   if (wishlist === "added") {
     return <Notice>Produk berhasil ditambahkan ke wishlist.</Notice>;
@@ -183,7 +190,11 @@ function StatusNotice({ cart, wishlist, error }: { cart?: string; wishlist?: str
   return null;
 }
 
-function Notice({ children, tone = "success" }: { children: React.ReactNode; tone?: "success" | "error" }) {
+function Notice({ children, tone = "success" }: { children: React.ReactNode; tone?: "success" | "error" | "info" }) {
+  if (tone === "info") {
+    return <div className="rounded-2xl border border-primary/25 bg-primary/10 p-4 text-sm text-primary">{children}</div>;
+  }
+
   return (
     <div className={tone === "error" ? "rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive" : "rounded-2xl border bg-secondary/70 p-4 text-sm text-secondary-foreground"}>
       {children}

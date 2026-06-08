@@ -80,6 +80,7 @@ export function ProductCard({ product, wishlistReturnTo }: { product: StoreProdu
             <input type="hidden" name="productSlug" value={product.slug} />
             <input type="hidden" name="variantSku" value={defaultVariant.sku} />
             <input type="hidden" name={`quantity:${defaultVariant.sku}`} value="1" />
+            {wishlistReturnTo ? <input type="hidden" name="returnTo" value={wishlistReturnTo} /> : null}
             <SubmitButton formAction={addToCart} type="submit" variant="outline" className="w-full rounded-xl px-2 text-xs sm:text-sm" pendingLabel="...">
               <ShoppingBag data-icon="inline-start" />
               Keranjang

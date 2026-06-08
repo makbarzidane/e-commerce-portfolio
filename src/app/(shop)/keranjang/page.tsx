@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import { removeCartItem, updateCartQuantity } from "@/app/(shop)/keranjang/actions";
 import { authOptions } from "@/lib/auth";
@@ -13,11 +12,14 @@ import { ConfirmSubmitButton, SubmitButton } from "@/components/ui/submit-button
 import { getCartLines } from "@/lib/cart";
 import { formatCurrency } from "@/lib/format";
 
-export default async function CartPage() {
+export default async function CartPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ auth?: string }>;
+}) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    redirect("/auth/login?callbackUrl=/keranjang");
-  }
+  const params = await searchParams;
+  const isLoggedIn = Boolean(session?.user?.id);
 
   const cartItems = await getCartLines();
   const subtotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
@@ -28,6 +30,11 @@ export default async function CartPage() {
       <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_360px] lg:px-8">
       <div className="flex flex-col gap-4">
         <h1 className="text-3xl font-semibold tracking-tight">Keranjang</h1>
+        {params.auth === "required" ? (
+          <div className="rounded-2xl border border-primary/25 bg-primary/10 p-4 text-sm text-primary">
+            Untuk checkout dan membuat pesanan, silakan login atau buat akun terlebih dahulu. Item guest tetap tersimpan di keranjang demo.
+          </div>
+        ) : null}
         {cartItems.length ? (
           cartItems.map((item) => (
             <Card key={item.id} className="motion-card rounded-2xl bg-card/90">
@@ -87,7 +94,12 @@ export default async function CartPage() {
             <span>Total</span>
             <span>{formatCurrency(subtotal + shipping)}</span>
           </div>
-          <Link href="/checkout" className={buttonVariants({ size: "lg", className: !cartItems.length ? "pointer-events-none opacity-50" : "" })}>Checkout</Link>
+          <Link
+            href={isLoggedIn ? "/checkout" : "/keranjang?auth=required"}
+            className={buttonVariants({ size: "lg", className: !cartItems.length ? "pointer-events-none opacity-50" : "" })}
+          >
+            Checkout
+          </Link>
         </CardContent>
       </Card>
       </div>

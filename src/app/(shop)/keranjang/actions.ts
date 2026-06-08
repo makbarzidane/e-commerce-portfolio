@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getOrCreateCart } from "@/lib/cart";
+import { addDemoCartSelections, getOrCreateCart, removeDemoCartItem, updateDemoCartItem } from "@/lib/cart";
 import { getPrisma } from "@/lib/prisma";
 
 function toPositiveInt(value: FormDataEntryValue | null, fallback = 1) {
@@ -35,21 +35,22 @@ function readVariantSelections(formData: FormData) {
 
 export async function addToCart(formData: FormData) {
   const productSlug = String(formData.get("productSlug") ?? "");
-  await addProductSelectionsToCart(formData, `/produk/${productSlug}?cart=added`);
+  const returnTo = String(formData.get("returnTo") ?? `/produk/${productSlug}`);
+  await addProductSelectionsToCart(formData, withStatus(returnTo, "cart", "added"), false);
 }
 
 export async function buyNow(formData: FormData) {
-  await addProductSelectionsToCart(formData, "/checkout");
+  await addProductSelectionsToCart(formData, "/checkout", true);
 }
 
-async function addProductSelectionsToCart(formData: FormData, successTarget: string) {
+async function addProductSelectionsToCart(formData: FormData, successTarget: string, requireLogin: boolean) {
   const session = await getServerSession(authOptions);
   const productSlug = String(formData.get("productSlug") ?? "");
   const selections = readVariantSelections(formData);
   let target: string = successTarget;
 
-  if (!session?.user?.id) {
-    redirect(`/auth/login?callbackUrl=${encodeURIComponent(`/produk/${productSlug}`)}`);
+  if (requireLogin && !session?.user?.id) {
+    redirect(`/produk/${productSlug}?auth=required`);
   }
 
   try {
@@ -113,7 +114,12 @@ async function addProductSelectionsToCart(formData: FormData, successTarget: str
     }
   } catch (error) {
     if ((error as Error).message !== "PRODUCT_NOT_FOUND" && (error as Error).message !== "STOCK_UNAVAILABLE") {
+      const savedToDemoCart = await addDemoCartSelections(productSlug, selections);
+      if (savedToDemoCart) {
+        target = successTarget;
+      } else {
       target = `/produk/${productSlug}?error=cart-database`;
+      }
     }
   }
 
@@ -122,15 +128,15 @@ async function addProductSelectionsToCart(formData: FormData, successTarget: str
   redirect(target);
 }
 
+function withStatus(path: string, key: string, value: string) {
+  const separator = path.includes("?") ? "&" : "?";
+  return `${path}${separator}${key}=${value}`;
+}
+
 export async function updateCartQuantity(formData: FormData) {
-  const session = await getServerSession(authOptions);
   const id = String(formData.get("id") ?? "");
   const quantity = toPositiveInt(formData.get("quantity"));
   if (!id) return;
-
-  if (!session?.user?.id) {
-    redirect("/auth/login?callbackUrl=/keranjang");
-  }
 
   try {
     const cart = await getOrCreateCart();
@@ -149,20 +155,15 @@ export async function updateCartQuantity(formData: FormData) {
       data: { quantity: safeQuantity },
     });
   } catch {
-    return;
+    await updateDemoCartItem(id, quantity);
   }
 
   revalidatePath("/keranjang");
 }
 
 export async function removeCartItem(formData: FormData) {
-  const session = await getServerSession(authOptions);
   const id = String(formData.get("id") ?? "");
   if (!id) return;
-
-  if (!session?.user?.id) {
-    redirect("/auth/login?callbackUrl=/keranjang");
-  }
 
   try {
     const cart = await getOrCreateCart();
@@ -170,7 +171,7 @@ export async function removeCartItem(formData: FormData) {
 
     await getPrisma().cartItem.deleteMany({ where: { id, cartId: cart.id } });
   } catch {
-    return;
+    await removeDemoCartItem(id);
   }
 
   revalidatePath("/keranjang");

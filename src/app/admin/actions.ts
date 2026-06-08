@@ -33,8 +33,17 @@ function readIds(formData: FormData, key: string) {
   return formData.getAll(key).map((value) => String(value)).filter(Boolean);
 }
 
+async function isPortfolioDemoMode() {
+  if (process.env.DATABASE_URL) return false;
+
+  revalidatePath("/admin");
+  await setFlashToast("Mode portfolio demo: aksi berhasil disimulasikan. Data tidak disimpan permanen dan akan kembali seperti semula.", "info");
+  return true;
+}
+
 export async function createCategory(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const name = String(formData.get("name") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
@@ -56,6 +65,7 @@ export async function createCategory(formData: FormData) {
 
 export async function deactivateCategory(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const id = String(formData.get("id") ?? "");
   if (!id) return;
@@ -72,6 +82,7 @@ export async function deactivateCategory(formData: FormData) {
 
 export async function deleteCategory(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const id = String(formData.get("id") ?? "");
   if (!id) return;
@@ -95,6 +106,7 @@ export async function deleteCategory(formData: FormData) {
 
 export async function updateCategory(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const id = String(formData.get("id") ?? "");
   const name = String(formData.get("name") ?? "").trim();
@@ -117,6 +129,7 @@ export async function updateCategory(formData: FormData) {
 
 export async function createProduct(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const name = String(formData.get("name") ?? "").trim();
   const slug = slugify(String(formData.get("slug") ?? name));
@@ -154,6 +167,7 @@ export async function createProduct(formData: FormData) {
 
 export async function deactivateProduct(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const id = String(formData.get("id") ?? "");
   if (!id) return;
@@ -170,6 +184,7 @@ export async function deactivateProduct(formData: FormData) {
 
 export async function deleteProduct(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const id = String(formData.get("id") ?? "");
   if (!id) return;
@@ -200,6 +215,7 @@ export async function deleteProduct(formData: FormData) {
 
 export async function updateProductStatus(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const id = String(formData.get("id") ?? "");
   const isActive = String(formData.get("isActive") ?? "") === "true";
@@ -218,6 +234,7 @@ export async function updateProductStatus(formData: FormData) {
 
 export async function bulkUpdateProducts(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const ids = readIds(formData, "productId");
   const action = String(formData.get("bulkAction") ?? "");
@@ -244,6 +261,7 @@ export async function bulkUpdateProducts(formData: FormData) {
 
 export async function updateProduct(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const id = String(formData.get("id") ?? "");
   const name = String(formData.get("name") ?? "").trim();
@@ -301,6 +319,7 @@ export async function updateProduct(formData: FormData) {
 
 export async function createVariant(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const productId = String(formData.get("productId") ?? "");
   const color = String(formData.get("color") ?? "").trim();
@@ -344,6 +363,7 @@ export async function createVariant(formData: FormData) {
 
 export async function deleteVariant(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const id = String(formData.get("id") ?? "");
   if (!id) return;
@@ -369,6 +389,7 @@ export async function deleteVariant(formData: FormData) {
 
 export async function updateVariant(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const id = String(formData.get("id") ?? "");
   const productId = String(formData.get("productId") ?? "");
@@ -413,6 +434,7 @@ export async function updateVariant(formData: FormData) {
 
 export async function createCoupon(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const code = String(formData.get("code") ?? "").trim().toUpperCase();
   const description = String(formData.get("description") ?? "").trim();
@@ -450,6 +472,7 @@ export async function createCoupon(formData: FormData) {
 
 export async function deactivateCoupon(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const id = String(formData.get("id") ?? "");
   if (!id) return;
@@ -461,6 +484,7 @@ export async function deactivateCoupon(formData: FormData) {
 
 export async function deleteCoupon(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const id = String(formData.get("id") ?? "");
   if (!id) return;
@@ -484,6 +508,7 @@ export async function deleteCoupon(formData: FormData) {
 
 export async function updateCoupon(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const id = String(formData.get("id") ?? "");
   const code = String(formData.get("code") ?? "").trim().toUpperCase();
@@ -516,6 +541,7 @@ export async function updateCoupon(formData: FormData) {
 
 export async function createBanner(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const title = String(formData.get("title") ?? "").trim();
   const subtitle = String(formData.get("subtitle") ?? "").trim();
@@ -538,6 +564,7 @@ export async function createBanner(formData: FormData) {
 
 export async function deactivateBanner(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const id = String(formData.get("id") ?? "");
   if (!id) return;
@@ -551,6 +578,7 @@ export async function deactivateBanner(formData: FormData) {
 
 export async function deleteBanner(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const id = String(formData.get("id") ?? "");
   if (!id) return;
@@ -564,6 +592,7 @@ export async function deleteBanner(formData: FormData) {
 
 export async function deleteCustomer(formData: FormData) {
   const session = await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const id = String(formData.get("id") ?? "");
   if (!id || id === session.user.id) return;
@@ -597,6 +626,7 @@ export async function deleteCustomer(formData: FormData) {
 
 export async function updateBanner(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const id = String(formData.get("id") ?? "");
   const title = String(formData.get("title") ?? "").trim();
@@ -622,6 +652,7 @@ export async function updateBanner(formData: FormData) {
 
 export async function updateStoreSetting(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   await getPrisma().storeSetting.upsert({
     where: { id: "store-setting" },
@@ -651,6 +682,7 @@ export async function updateStoreSetting(formData: FormData) {
 
 export async function updateOrderStatus(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const id = String(formData.get("id") ?? "");
   const status = String(formData.get("status") ?? "") as OrderStatus;
@@ -701,6 +733,7 @@ export async function updateOrderStatus(formData: FormData) {
 
 export async function bulkUpdateOrders(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const ids = readIds(formData, "orderId");
   const status = String(formData.get("bulkStatus") ?? "") as OrderStatus;
@@ -720,6 +753,7 @@ export async function bulkUpdateOrders(formData: FormData) {
 
 export async function updateOrderTracking(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const id = String(formData.get("id") ?? "");
   const shippingProvider = String(formData.get("shippingProvider") ?? "").trim();
@@ -756,6 +790,7 @@ export async function updateOrderTracking(formData: FormData) {
 
 export async function updateReturnRequest(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const id = String(formData.get("id") ?? "");
   const status = String(formData.get("status") ?? "") as ReturnStatus;
@@ -847,6 +882,7 @@ export async function updateReturnRequest(formData: FormData) {
 
 export async function deleteProblemOrder(formData: FormData) {
   await requireAdmin();
+  if (await isPortfolioDemoMode()) return;
 
   const id = String(formData.get("id") ?? "");
   if (!id) return;
@@ -920,3 +956,4 @@ export async function deleteProblemOrder(formData: FormData) {
   await writeAdminAudit({ action: AdminAuditAction.DELETE, entity: "Order", entityId: id, summary: "Hapus order bermasalah dan kembalikan stok" });
   await setFlashToast("Order bermasalah berhasil dihapus jika memenuhi syarat.");
 }
+

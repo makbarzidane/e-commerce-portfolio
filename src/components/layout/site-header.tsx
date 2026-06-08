@@ -17,12 +17,10 @@ const navItems = [
 export async function SiteHeader() {
   const session = await getServerSession(authOptions);
   const isLoggedIn = Boolean(session?.user);
-  const [cartCount, wishlistCount] = isLoggedIn
-    ? await Promise.all([
-        getCartLines().then((items) => items.reduce((total, item) => total + item.quantity, 0)).catch(() => 0),
-        getPrisma().wishlist.count({ where: { userId: session?.user?.id } }).catch(() => 0),
-      ])
-    : [0, 0];
+  const [cartCount, wishlistCount] = await Promise.all([
+    getCartLines().then((items) => items.reduce((total, item) => total + item.quantity, 0)).catch(() => 0),
+    isLoggedIn ? getPrisma().wishlist.count({ where: { userId: session?.user?.id } }).catch(() => 0) : Promise.resolve(0),
+  ]);
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/82 shadow-sm shadow-primary/5 backdrop-blur-xl">
@@ -52,18 +50,18 @@ export async function SiteHeader() {
               <Link href="/akun" aria-label="Akun saya" className={buttonVariants({ variant: "ghost", size: "icon" })}>
                 <UserRound data-icon="only" />
               </Link>
-              <Link href="/keranjang" className={buttonVariants({ className: "relative" })}>
-                <ShoppingBag data-icon="inline-start" />
-                Keranjang
-                {cartCount > 0 ? <Counter value={cartCount} /> : null}
-              </Link>
               <LogoutButton compact />
             </>
           ) : (
-            <Link href="/auth/login" className={buttonVariants()}>
+            <Link href="/auth/login" className={buttonVariants({ variant: "outline", className: "px-3 text-xs sm:px-4 sm:text-sm" })}>
               Login / Register
             </Link>
           )}
+          <Link href="/keranjang" className={buttonVariants({ className: "relative" })}>
+            <ShoppingBag data-icon="inline-start" />
+            Keranjang
+            {cartCount > 0 ? <Counter value={cartCount} /> : null}
+          </Link>
         </div>
       </div>
     </header>
