@@ -1,0 +1,8 @@
+<svg width="900" height="1100" viewBox="0 0 900 1100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="1100" fill="#f5ede5"/>
+  <path d="M450 141c126 0 225 113 225 259v240c0 143-83 255-225 255S225 783 225 640V400c0-146 99-259 225-259z" fill="#282522"/>
+  <path d="M450 210c64 0 116 63 116 141 0 79-52 143-116 143s-116-64-116-143c0-78 52-141 116-141z" fill="#eadfcd"/>
+  <path d="M314 603c87 45 184 47 276 0" stroke="#d8b870" stroke-width="10" opacity=".45"/>
+  <text x="70" y="970" fill="#2a2521" font-family="Arial" font-size="54" font-weight="700">Zimeira</text>
+  <text x="72" y="1028" fill="#8d6f58" font-family="Arial" font-size="30">Instant Daily Black</text>
+</svg>

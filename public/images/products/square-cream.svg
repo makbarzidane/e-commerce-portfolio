@@ -1,0 +1,9 @@
+<svg width="900" height="1100" viewBox="0 0 900 1100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="1100" fill="#fffaf3"/>
+  <rect x="172" y="164" width="556" height="556" rx="42" fill="#efe2cf" transform="rotate(8 172 164)"/>
+  <path d="M229 246c160 151 319 251 492 326" stroke="#d2b36f" stroke-width="18" opacity=".35"/>
+  <path d="M195 654c138-29 304-42 480 7" stroke="#2a2521" stroke-width="8" opacity=".12"/>
+  <circle cx="705" cy="806" r="74" fill="#d2b36f" opacity=".28"/>
+  <text x="70" y="970" fill="#2a2521" font-family="Arial" font-size="54" font-weight="700">Zimeira</text>
+  <text x="72" y="1028" fill="#8d6f58" font-family="Arial" font-size="30">Square Silk Cream</text>
+</svg>

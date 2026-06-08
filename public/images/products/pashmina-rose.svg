@@ -1,0 +1,9 @@
+<svg width="900" height="1100" viewBox="0 0 900 1100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="1100" fill="#f7eee9"/>
+  <circle cx="690" cy="180" r="150" fill="#d8b870" opacity=".18"/>
+  <path d="M290 186c175 16 314 136 330 318 18 207-85 342-226 401-75 31-189 30-252-34-53-54-49-145 14-190 61-44 133-16 187-50 67-43 88-157 46-240-37-73-108-108-160-140-28-18-13-72 61-65z" fill="#c9969a"/>
+  <path d="M328 225c134 45 225 146 225 291 0 142-76 257-187 320" stroke="#fff5ef" stroke-width="46" stroke-linecap="round" opacity=".42"/>
+  <path d="M238 810c144 74 296 53 410-58" stroke="#2a2521" stroke-width="6" stroke-linecap="round" opacity=".16"/>
+  <text x="70" y="970" fill="#2a2521" font-family="Arial" font-size="54" font-weight="700">Zimeira</text>
+  <text x="72" y="1028" fill="#8d6f58" font-family="Arial" font-size="30">Pashmina Voal Rose</text>
+</svg>

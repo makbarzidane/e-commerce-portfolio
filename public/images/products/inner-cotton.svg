@@ -1,0 +1,8 @@
+<svg width="900" height="1100" viewBox="0 0 900 1100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="1100" fill="#fff8f0"/>
+  <path d="M450 161c122 0 211 99 211 235v361c0 70-56 126-126 126H365c-70 0-126-56-126-126V396c0-136 89-235 211-235z" fill="#f2eadf"/>
+  <path d="M450 238c69 0 119 57 119 127s-50 127-119 127-119-57-119-127 50-127 119-127z" fill="#c5a58a"/>
+  <path d="M296 609h308" stroke="#d2b36f" stroke-width="16" stroke-linecap="round" opacity=".4"/>
+  <text x="70" y="970" fill="#2a2521" font-family="Arial" font-size="54" font-weight="700">Zimeira</text>
+  <text x="72" y="1028" fill="#8d6f58" font-family="Arial" font-size="30">Inner Ninja Soft Cotton</text>
+</svg>

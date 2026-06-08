@@ -1,0 +1,10 @@
+<svg width="900" height="1100" viewBox="0 0 900 1100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="1100" fill="#f7eee9"/>
+  <circle cx="358" cy="470" r="132" fill="#caa85a"/>
+  <circle cx="540" cy="470" r="132" fill="#d8b870"/>
+  <circle cx="358" cy="470" r="58" fill="#fff8f0" opacity=".85"/>
+  <circle cx="540" cy="470" r="58" fill="#fff8f0" opacity=".85"/>
+  <path d="M304 704c92 42 194 42 289 0" stroke="#2a2521" stroke-width="8" opacity=".14"/>
+  <text x="70" y="970" fill="#2a2521" font-family="Arial" font-size="54" font-weight="700">Zimeira</text>
+  <text x="72" y="1028" fill="#8d6f58" font-family="Arial" font-size="30">Magnet Hijab Gold Set</text>
+</svg>

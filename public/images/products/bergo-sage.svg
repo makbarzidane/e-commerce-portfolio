@@ -1,0 +1,8 @@
+<svg width="900" height="1100" viewBox="0 0 900 1100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="1100" fill="#f6f1e8"/>
+  <path d="M451 145c151 0 244 139 237 320-7 198-104 392-237 392S221 663 214 465c-7-181 86-320 237-320z" fill="#aeb8a2"/>
+  <path d="M451 223c77 0 132 65 132 148s-55 150-132 150-132-67-132-150 55-148 132-148z" fill="#f2e4d7"/>
+  <path d="M260 702c111 76 268 89 384 4" stroke="#fffaf3" stroke-width="28" stroke-linecap="round" opacity=".5"/>
+  <text x="70" y="970" fill="#2a2521" font-family="Arial" font-size="54" font-weight="700">Zimeira</text>
+  <text x="72" y="1028" fill="#8d6f58" font-family="Arial" font-size="30">Bergo Travel Sage</text>
+</svg>
