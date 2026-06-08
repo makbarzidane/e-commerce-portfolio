@@ -4,8 +4,9 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
-import { ArrowLeft, CreditCard, Loader2, MapPin, PackageCheck, Truck } from "lucide-react";
+import { ArrowLeft, CreditCard, Loader2, MapPin, PackageCheck, Trash2, Truck } from "lucide-react";
 import { createCheckoutOrder } from "@/app/(shop)/checkout/actions";
+import { removeCartItem, updateCartQuantity } from "@/app/(shop)/keranjang/actions";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -115,6 +116,11 @@ export function CheckoutForm({ cartItems, errorMessage, customerDefaults, paymen
         {errorMessage ? (
           <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
             {errorMessage}
+          </div>
+        ) : null}
+        {isEmpty ? (
+          <div className="rounded-2xl border border-primary/25 bg-primary/10 p-4 text-sm text-primary">
+            Minimal harus memesan 1 produk untuk melanjutkan checkout. Silakan kembali ke katalog atau keranjang untuk menambahkan produk.
           </div>
         ) : null}
 
@@ -245,16 +251,36 @@ export function CheckoutForm({ cartItems, errorMessage, customerDefaults, paymen
         <CardContent className="flex flex-col gap-4">
           <div className="flex flex-col gap-3">
             {cartItems.map((item) => (
-              <div key={item.id} className="grid grid-cols-[56px_1fr_auto] items-center gap-3 rounded-xl border bg-background/70 p-2">
+              <div key={item.id} className="grid grid-cols-[56px_1fr] gap-3 rounded-xl border bg-background/70 p-2">
                 <Image src={item.product.image} alt={item.product.name} width={80} height={100} className="aspect-[4/5] rounded-lg object-cover" />
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">{item.product.name}</p>
-                  <p className="text-xs text-muted-foreground">{item.quantity} x {item.variant.color}</p>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">{item.product.name}</p>
+                      <p className="text-xs text-muted-foreground">{item.quantity} x {item.variant.color}</p>
+                    </div>
+                    <p className="shrink-0 text-sm font-semibold">{formatCurrency(item.price * item.quantity)}</p>
+                  </div>
                   {item.quantity > item.variant.stock || !item.variant.isActive ? (
                     <p className="text-xs text-destructive">Stok tidak mencukupi</p>
                   ) : null}
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <Input
+                      name={`quantity:${item.id}`}
+                      type="number"
+                      min="0"
+                      max={item.variant.stock}
+                      defaultValue={item.quantity}
+                      className="h-8 w-20"
+                    />
+                    <SubmitButton formAction={updateCartQuantity} name="id" value={item.id} type="submit" size="sm" variant="outline" pendingLabel="...">
+                      Update
+                    </SubmitButton>
+                    <SubmitButton formAction={removeCartItem} name="id" value={item.id} type="submit" size="icon-sm" variant="ghost" aria-label="Hapus item" pendingLabel="">
+                      <Trash2 data-icon="only" />
+                    </SubmitButton>
+                  </div>
                 </div>
-                <p className="text-sm font-semibold">{formatCurrency(item.price * item.quantity)}</p>
               </div>
             ))}
           </div>
@@ -295,7 +321,7 @@ export function CheckoutForm({ cartItems, errorMessage, customerDefaults, paymen
           <SubmitButton type="submit" size="lg" className="w-full" disabled={isEmpty || hasStockIssue} pendingLabel="Membuat pesanan...">
             Buat Pesanan
           </SubmitButton>
-          {isEmpty ? <p className="text-center text-xs text-muted-foreground">Keranjang kosong. Tambahkan produk terlebih dahulu.</p> : null}
+          {isEmpty ? <p className="text-center text-xs text-muted-foreground">Minimal harus memesan 1 produk untuk melanjutkan pembelian.</p> : null}
           {hasStockIssue ? <p className="text-center text-xs text-destructive">Ada item dengan stok tidak cukup. Update keranjang terlebih dahulu.</p> : null}
         </CardContent>
       </Card>

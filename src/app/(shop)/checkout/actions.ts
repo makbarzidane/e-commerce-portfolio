@@ -40,7 +40,11 @@ export async function createCheckoutOrder(formData: FormData) {
   let target = "/pesanan?created=1";
 
   if (!session?.user?.id) {
-    redirect("/auth/login?callbackUrl=/checkout");
+    redirect("/keranjang?auth=required");
+  }
+
+  if (!process.env.DATABASE_URL) {
+    redirect("/keranjang?checkout=demo");
   }
 
   if (!limit.ok) {

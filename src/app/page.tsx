@@ -110,7 +110,7 @@ export default async function HomePage() {
           </div>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {products.slice(0, 4).map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard key={product.id} product={product} wishlistReturnTo="/" />
             ))}
           </div>
         </section>

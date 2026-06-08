@@ -13,6 +13,12 @@ function toPositiveInt(value: FormDataEntryValue | null, fallback = 1) {
   return parsed;
 }
 
+function toNonNegativeInt(value: FormDataEntryValue | null, fallback = 1) {
+  const parsed = Number.parseInt(String(value ?? ""), 10);
+  if (!Number.isFinite(parsed) || parsed < 0) return fallback;
+  return parsed;
+}
+
 function toSelectionQuantity(value: FormDataEntryValue | null, fallback = 0) {
   const parsed = Number.parseInt(String(value ?? ""), 10);
   if (!Number.isFinite(parsed) || parsed < 0) return fallback;
@@ -135,12 +141,19 @@ function withStatus(path: string, key: string, value: string) {
 
 export async function updateCartQuantity(formData: FormData) {
   const id = String(formData.get("id") ?? "");
-  const quantity = toPositiveInt(formData.get("quantity"));
+  const quantity = toNonNegativeInt(formData.get("quantity") ?? formData.get(`quantity:${id}`));
   if (!id) return;
 
   try {
     const cart = await getOrCreateCart();
     if (!cart) return;
+
+    if (quantity < 1) {
+      await getPrisma().cartItem.deleteMany({ where: { id, cartId: cart.id } });
+      revalidatePath("/keranjang");
+      revalidatePath("/checkout");
+      return;
+    }
 
     const item = await getPrisma().cartItem.findFirst({
       where: { id, cartId: cart.id },
@@ -155,10 +168,15 @@ export async function updateCartQuantity(formData: FormData) {
       data: { quantity: safeQuantity },
     });
   } catch {
-    await updateDemoCartItem(id, quantity);
+    if (quantity < 1) {
+      await removeDemoCartItem(id);
+    } else {
+      await updateDemoCartItem(id, quantity);
+    }
   }
 
   revalidatePath("/keranjang");
+  revalidatePath("/checkout");
 }
 
 export async function removeCartItem(formData: FormData) {
@@ -175,4 +193,5 @@ export async function removeCartItem(formData: FormData) {
   }
 
   revalidatePath("/keranjang");
+  revalidatePath("/checkout");
 }

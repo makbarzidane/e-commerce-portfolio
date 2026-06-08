@@ -15,7 +15,7 @@ import { formatCurrency } from "@/lib/format";
 export default async function CartPage({
   searchParams,
 }: {
-  searchParams: Promise<{ auth?: string }>;
+  searchParams: Promise<{ auth?: string; checkout?: string }>;
 }) {
   const session = await getServerSession(authOptions);
   const params = await searchParams;
@@ -33,6 +33,11 @@ export default async function CartPage({
         {params.auth === "required" ? (
           <div className="rounded-2xl border border-primary/25 bg-primary/10 p-4 text-sm text-primary">
             Untuk checkout dan membuat pesanan, silakan login atau buat akun terlebih dahulu. Item guest tetap tersimpan di keranjang demo.
+          </div>
+        ) : null}
+        {params.checkout === "demo" ? (
+          <div className="rounded-2xl border border-primary/25 bg-primary/10 p-4 text-sm text-primary">
+            Checkout portfolio sedang berjalan dalam mode demo tanpa database production. Keranjang bisa dicoba, tetapi pembuatan order real membutuhkan database aktif.
           </div>
         ) : null}
         {cartItems.length ? (

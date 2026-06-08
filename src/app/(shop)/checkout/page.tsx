@@ -14,7 +14,11 @@ export default async function CheckoutPage({
 }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    redirect("/auth/login?callbackUrl=/checkout");
+    redirect("/keranjang?auth=required");
+  }
+
+  if (!process.env.DATABASE_URL) {
+    redirect("/keranjang?checkout=demo");
   }
 
   const customer = await getPrisma().user.findUnique({
