@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Eye, Heart } from "lucide-react";
+import { Eye, Heart, ShoppingBag, Zap } from "lucide-react";
+import { addToCart, buyNow } from "@/app/(shop)/keranjang/actions";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -14,6 +15,7 @@ export function ProductCard({ product, wishlistReturnTo }: { product: StoreProdu
   const discount = getDiscountPercent(product.normalPrice, product.discountPrice);
   const featuredLabel = product.labels.find((label) => label !== "diskon");
   const isWishlisted = Boolean(product.isWishlisted);
+  const defaultVariant = product.variants.find((variant) => variant.stock > 0) ?? product.variants[0];
 
   return (
     <Card className="motion-card group overflow-hidden rounded-2xl border-border/80 bg-card shadow-sm">
@@ -72,8 +74,23 @@ export function ProductCard({ product, wishlistReturnTo }: { product: StoreProdu
           ) : null}
         </div>
       </CardContent>
-      <CardFooter className="border-t bg-muted/35 p-3">
-        <Link href={`/produk/${product.slug}`} className={buttonVariants({ className: "w-full rounded-xl shadow-sm shadow-primary/10" })}>
+      <CardFooter className="grid gap-2 border-t bg-muted/35 p-3">
+        {defaultVariant ? (
+          <form className="grid grid-cols-2 gap-2">
+            <input type="hidden" name="productSlug" value={product.slug} />
+            <input type="hidden" name="variantSku" value={defaultVariant.sku} />
+            <input type="hidden" name={`quantity:${defaultVariant.sku}`} value="1" />
+            <SubmitButton formAction={addToCart} type="submit" variant="outline" className="w-full rounded-xl px-2 text-xs sm:text-sm" pendingLabel="...">
+              <ShoppingBag data-icon="inline-start" />
+              Keranjang
+            </SubmitButton>
+            <SubmitButton formAction={buyNow} type="submit" className="w-full rounded-xl px-2 text-xs sm:text-sm" pendingLabel="...">
+              <Zap data-icon="inline-start" />
+              Beli
+            </SubmitButton>
+          </form>
+        ) : null}
+        <Link href={`/produk/${product.slug}`} className={buttonVariants({ variant: "secondary", className: "w-full rounded-xl shadow-sm shadow-primary/10" })}>
           <Eye data-icon="inline-start" />
           Lihat Detail
         </Link>

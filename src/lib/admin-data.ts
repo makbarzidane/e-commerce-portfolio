@@ -1,6 +1,14 @@
-import { adminOrders, adminStats, categories as fallbackCategories, products as fallbackProducts, storeSettings } from "@/lib/data";
+import { adminOrders, categories as fallbackCategories, products as fallbackProducts, storeSettings } from "@/lib/data";
 import { getPrisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/format";
+
+export type AdminSalesChartPoint = {
+  key: string;
+  label: string;
+  total: number;
+  paidTotal?: number;
+  orderCount?: number;
+};
 
 export async function getAdminDashboardData() {
   try {
@@ -25,9 +33,21 @@ export async function getAdminDashboardData() {
       }),
     };
   } catch {
+    const paidRevenue = adminOrders
+      .filter((order) => ["PAID"].includes(order.payment) && !["CANCELED", "REFUNDED"].includes(order.status))
+      .reduce((total, order) => total + order.total, 0);
+    const uniqueCustomers = new Set(adminOrders.map((order) => order.customer));
+    const canceledCount = adminOrders.filter((order) => ["CANCELED", "REFUNDED"].includes(order.status)).length;
+
     return {
-      stats: adminStats,
-      orders: adminOrders.map((order) => ({
+      stats: [
+        { label: "Total Produk", value: String(fallbackProducts.length), note: "Produk aktif di katalog demo" },
+        { label: "Total Order", value: String(adminOrders.length), note: "Pesanan dummy yang tampil di CMS" },
+        { label: "Total Customer", value: String(uniqueCustomers.size + 1), note: "Customer unik + admin demo" },
+        { label: "Pendapatan", value: formatCurrency(paidRevenue), note: "Order paid tanpa canceled/refunded" },
+        { label: "Pembatalan", value: String(canceledCount), note: "Canceled dan refunded demo" },
+      ],
+      orders: adminOrders.slice(0, 5).map((order) => ({
         orderNumber: order.id,
         customerName: order.customer,
         status: order.status,
@@ -37,7 +57,7 @@ export async function getAdminDashboardData() {
   }
 }
 
-export async function getAdminSalesChartData() {
+export async function getAdminSalesChartData(): Promise<AdminSalesChartPoint[]> {
   try {
     const since = new Date();
     since.setDate(since.getDate() - 6);
@@ -68,15 +88,26 @@ export async function getAdminSalesChartData() {
       };
     });
   } catch {
-    return [
-      { key: "d1", label: "Sen", total: 250000 },
-      { key: "d2", label: "Sel", total: 420000 },
-      { key: "d3", label: "Rab", total: 310000 },
-      { key: "d4", label: "Kam", total: 530000 },
-      { key: "d5", label: "Jum", total: 720000 },
-      { key: "d6", label: "Sab", total: 460000 },
-      { key: "d7", label: "Min", total: 610000 },
-    ];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return Array.from({ length: 7 }).map((_, index) => {
+      const date = new Date(today);
+      date.setDate(today.getDate() - (6 - index));
+      const dayOrders = adminOrders.filter((order) => (order.daysAgo ?? 0) === 6 - index);
+      const total = dayOrders.reduce((sum, order) => sum + order.total, 0);
+      const paidTotal = dayOrders
+        .filter((order) => order.payment === "PAID" && !["CANCELED", "REFUNDED"].includes(order.status))
+        .reduce((sum, order) => sum + order.total, 0);
+
+      return {
+        key: `fallback-${index}`,
+        label: date.toLocaleDateString("id-ID", { weekday: "short" }),
+        total,
+        paidTotal,
+        orderCount: dayOrders.length,
+      };
+    });
   }
 }
 
@@ -341,10 +372,19 @@ export async function getAdminCustomers(options: { q?: string; role?: string; pa
       include: { _count: { select: { orders: true } } },
     });
   } catch {
-    return [
-      { id: "1", name: "Nadia Zimeira", email: "customer@zimeirahijab.test", phone: "081234567890", role: "CUSTOMER", _count: { orders: 2 } },
-      { id: "2", name: "Alya Putri", email: "alya@example.test", phone: "081277770001", role: "CUSTOMER", _count: { orders: 1 } },
-    ];
+    const customerOrders = new Map<string, number>();
+    for (const order of adminOrders) {
+      customerOrders.set(order.customer, (customerOrders.get(order.customer) ?? 0) + 1);
+    }
+
+    return Array.from(customerOrders.entries()).map(([name, count], index) => ({
+      id: `customer-${index + 1}`,
+      name,
+      email: `${name.toLowerCase().replace(/\s+/g, ".")}@example.test`,
+      phone: `0812${String(77770000 + index).padStart(8, "0")}`,
+      role: "CUSTOMER",
+      _count: { orders: count },
+    }));
   }
 }
 
@@ -447,7 +487,24 @@ export async function getAdminLowStockVariants(threshold = 5) {
       include: { product: { select: { name: true, slug: true } } },
     });
   } catch {
-    return [];
+    return fallbackProducts.flatMap((product) =>
+      product.variants
+        .filter((variant) => variant.stock <= threshold || ["ZIM-SQR-GOL-SILK", "ZIM-BER-CRE-JER"].includes(variant.sku))
+        .slice(0, 2)
+        .map((variant) => ({
+          id: variant.sku,
+          productId: product.id,
+          color: variant.color,
+          colorHex: variant.colorHex,
+          material: variant.material,
+          stock: Math.min(variant.stock, variant.sku === "ZIM-SQR-GOL-SILK" ? 4 : variant.sku === "ZIM-BER-CRE-JER" ? 5 : variant.stock),
+          sku: variant.sku,
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          product: { name: product.name, slug: product.slug },
+        })),
+    ).slice(0, 6);
   }
 }
 

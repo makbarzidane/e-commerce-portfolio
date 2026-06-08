@@ -136,16 +136,26 @@ export const orders = [
 ];
 
 export const adminStats = [
-  { label: "Total Produk", value: "128", note: "+12 produk bulan ini" },
-  { label: "Total Order", value: "342", note: "28 order menunggu proses" },
-  { label: "Total Customer", value: "1.284", note: "+84 customer baru" },
-  { label: "Pendapatan Dummy", value: "Rp 48,7 jt", note: "Data contoh tahap pertama" },
+  { label: "Total Produk", value: "6", note: "Produk aktif di katalog demo" },
+  { label: "Total Order", value: "12", note: "Pesanan demo bulan Juni 2026" },
+  { label: "Total Customer", value: "8", note: "Customer unik + akun admin demo" },
+  { label: "Pendapatan", value: "Rp 1.608.000", note: "Order paid, processing, shipped, completed" },
+  { label: "Pembatalan", value: "2", note: "Order canceled/refunded demo" },
 ];
 
 export const adminOrders = [
-  { id: "ZMS-2026-0001", customer: "Nadia Zimeira", status: "Diproses", payment: "Paid", total: 114000 },
-  { id: "ZMS-2026-0002", customer: "Alya Putri", status: "Dikirim", payment: "Paid", total: 207000 },
-  { id: "ZMS-2026-0003", customer: "Salsa Rahma", status: "Pending", payment: "Unpaid", total: 89000 },
+  { id: "ZMS-2026-0012", customer: "Nadia Zimeira", status: "PROCESSING", payment: "PAID", total: 150300, itemCount: 3, daysAgo: 0 },
+  { id: "ZMS-2026-0011", customer: "Alya Putri", status: "SHIPPED", payment: "PAID", total: 207000, itemCount: 3, daysAgo: 0 },
+  { id: "ZMS-2026-0010", customer: "Salsa Rahma", status: "PENDING", payment: "UNPAID", total: 89000, itemCount: 1, daysAgo: 1 },
+  { id: "ZMS-2026-0009", customer: "Mira Lestari", status: "COMPLETED", payment: "PAID", total: 318000, itemCount: 4, daysAgo: 1 },
+  { id: "ZMS-2026-0008", customer: "Putri Aulia", status: "CANCELED", payment: "EXPIRED", total: 129000, itemCount: 1, daysAgo: 2 },
+  { id: "ZMS-2026-0007", customer: "Rani Safitri", status: "SHIPPED", payment: "PAID", total: 183000, itemCount: 2, daysAgo: 2 },
+  { id: "ZMS-2026-0006", customer: "Dewi Anggraini", status: "PROCESSING", payment: "PAID", total: 99000, itemCount: 1, daysAgo: 3 },
+  { id: "ZMS-2026-0005", customer: "Citra Amalia", status: "COMPLETED", payment: "PAID", total: 228000, itemCount: 2, daysAgo: 4 },
+  { id: "ZMS-2026-0004", customer: "Hana Maharani", status: "PENDING", payment: "UNPAID", total: 79000, itemCount: 1, daysAgo: 5 },
+  { id: "ZMS-2026-0003", customer: "Fitri Nabila", status: "COMPLETED", payment: "PAID", total: 268000, itemCount: 3, daysAgo: 5 },
+  { id: "ZMS-2026-0002", customer: "Alya Putri", status: "REFUNDED", payment: "REFUNDED", total: 149000, itemCount: 1, daysAgo: 6 },
+  { id: "ZMS-2026-0001", customer: "Nadia Zimeira", status: "COMPLETED", payment: "PAID", total: 154700, itemCount: 2, daysAgo: 6 },
 ];
 
 export const storeSettings = {

@@ -16,14 +16,14 @@ export default async function AdminDashboardPage() {
   ]);
   const maxSales = Math.max(...salesChart.map((item) => item.total), 1);
   const chartRevenue = salesChart.reduce((total, item) => total + item.total, 0);
-  const chartPaidRevenue = salesChart.reduce((total, item) => total + ("paidTotal" in item ? item.paidTotal : item.total), 0);
-  const chartOrderCount = salesChart.reduce((total, item) => total + ("orderCount" in item ? item.orderCount : 0), 0);
+  const chartPaidRevenue = salesChart.reduce((total, item) => total + (item.paidTotal ?? item.total), 0);
+  const chartOrderCount = salesChart.reduce((total, item) => total + (item.orderCount ?? 0), 0);
 
   return (
     <>
       <div>
         <h1 className="text-3xl font-semibold tracking-tight">Dashboard Admin</h1>
-        <p className="text-muted-foreground">Ringkasan dummy untuk tahap pertama.</p>
+        <p className="text-muted-foreground">Ringkasan operasional toko dari database atau demo analytics portfolio.</p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
@@ -34,7 +34,7 @@ export default async function AdminDashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>Grafik Penjualan 7 Hari</CardTitle>
-            <CardDescription>Omzet harian real dari order database. Angka di bar ikut berubah saat order bertambah.</CardDescription>
+            <CardDescription>Omzet harian mengikuti order aktif, termasuk fallback demo saat database production belum dipasang.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="mb-4 grid gap-3 sm:grid-cols-3">
@@ -103,7 +103,7 @@ export default async function AdminDashboardPage() {
                   <TableRow key={order.orderNumber}>
                     <TableCell className="font-medium">{order.orderNumber}</TableCell>
                     <TableCell>{order.customerName}</TableCell>
-                    <TableCell><Badge variant="secondary">{order.status}</Badge></TableCell>
+                    <TableCell><Badge variant="secondary">{formatOrderStatus(order.status)}</Badge></TableCell>
                     <TableCell className="text-right">{formatCurrency(order.grandTotal)}</TableCell>
                   </TableRow>
                 ))}
@@ -143,4 +143,17 @@ function compactCurrency(value: number) {
   if (value >= 1_000_000) return `Rp ${(value / 1_000_000).toFixed(1)}jt`;
   if (value >= 1_000) return `Rp ${Math.round(value / 1_000)}rb`;
   return formatCurrency(value);
+}
+
+function formatOrderStatus(status: string) {
+  const labels: Record<string, string> = {
+    PENDING: "Menunggu",
+    PROCESSING: "Diproses",
+    SHIPPED: "Dikirim",
+    COMPLETED: "Selesai",
+    CANCELED: "Dibatalkan",
+    REFUNDED: "Refunded",
+  };
+
+  return labels[status] ?? status;
 }

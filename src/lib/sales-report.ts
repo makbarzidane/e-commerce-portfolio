@@ -100,12 +100,12 @@ export async function getSalesReport(period: SalesPeriod): Promise<SalesReport> 
       customerName: order.customer,
       status: order.status,
       paymentStatus: order.payment,
-      itemCount: 1 + index,
-      subtotal: order.total,
-      discountTotal: 0,
-      shippingCost: 0,
+      itemCount: order.itemCount ?? 1 + index,
+      subtotal: Math.max(0, order.total - 18000),
+      discountTotal: order.payment === "PAID" ? Math.round(order.total * 0.05) : 0,
+      shippingCost: 18000,
       grandTotal: order.total,
-      createdAt: new Date(Date.now() - index * 86_400_000),
+      createdAt: new Date(Date.now() - (order.daysAgo ?? index) * 86_400_000),
     }));
 
     return buildSalesReport(period, startDate, endDate, mappedOrders);
