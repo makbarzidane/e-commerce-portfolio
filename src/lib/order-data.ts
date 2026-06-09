@@ -1,3 +1,4 @@
+import { getDemoOrderByNumber } from "@/lib/demo-orders";
 import { getPrisma } from "@/lib/prisma";
 
 export async function getOrderByNumber(orderNumber: string) {
@@ -12,6 +13,6 @@ export async function getOrderByNumber(orderNumber: string) {
       },
     });
   } catch {
-    return null;
+    return getDemoOrderByNumber(orderNumber);
   }
 }

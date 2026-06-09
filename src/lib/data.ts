@@ -147,15 +147,15 @@ export const adminOrders = [
   { id: "ZMS-2026-0012", customer: "Nadia Zimeira", status: "PROCESSING", payment: "PAID", total: 150300, itemCount: 3, daysAgo: 0 },
   { id: "ZMS-2026-0011", customer: "Alya Putri", status: "SHIPPED", payment: "PAID", total: 207000, itemCount: 3, daysAgo: 0 },
   { id: "ZMS-2026-0010", customer: "Salsa Rahma", status: "PENDING", payment: "UNPAID", total: 89000, itemCount: 1, daysAgo: 1 },
-  { id: "ZMS-2026-0009", customer: "Mira Lestari", status: "COMPLETED", payment: "PAID", total: 318000, itemCount: 4, daysAgo: 1 },
-  { id: "ZMS-2026-0008", customer: "Putri Aulia", status: "CANCELED", payment: "EXPIRED", total: 129000, itemCount: 1, daysAgo: 2 },
+  { id: "ZMS-2026-0009", customer: "Mira Lestari", status: "DELIVERED", payment: "PAID", total: 318000, itemCount: 4, daysAgo: 1 },
+  { id: "ZMS-2026-0008", customer: "Putri Aulia", status: "CANCELLED", payment: "EXPIRED", total: 129000, itemCount: 1, daysAgo: 2 },
   { id: "ZMS-2026-0007", customer: "Rani Safitri", status: "SHIPPED", payment: "PAID", total: 183000, itemCount: 2, daysAgo: 2 },
   { id: "ZMS-2026-0006", customer: "Dewi Anggraini", status: "PROCESSING", payment: "PAID", total: 99000, itemCount: 1, daysAgo: 3 },
-  { id: "ZMS-2026-0005", customer: "Citra Amalia", status: "COMPLETED", payment: "PAID", total: 228000, itemCount: 2, daysAgo: 4 },
+  { id: "ZMS-2026-0005", customer: "Citra Amalia", status: "DELIVERED", payment: "PAID", total: 228000, itemCount: 2, daysAgo: 4 },
   { id: "ZMS-2026-0004", customer: "Hana Maharani", status: "PENDING", payment: "UNPAID", total: 79000, itemCount: 1, daysAgo: 5 },
-  { id: "ZMS-2026-0003", customer: "Fitri Nabila", status: "COMPLETED", payment: "PAID", total: 268000, itemCount: 3, daysAgo: 5 },
+  { id: "ZMS-2026-0003", customer: "Fitri Nabila", status: "DELIVERED", payment: "PAID", total: 268000, itemCount: 3, daysAgo: 5 },
   { id: "ZMS-2026-0002", customer: "Alya Putri", status: "REFUNDED", payment: "REFUNDED", total: 149000, itemCount: 1, daysAgo: 6 },
-  { id: "ZMS-2026-0001", customer: "Nadia Zimeira", status: "COMPLETED", payment: "PAID", total: 154700, itemCount: 2, daysAgo: 6 },
+  { id: "ZMS-2026-0001", customer: "Nadia Zimeira", status: "DELIVERED", payment: "PAID", total: 154700, itemCount: 2, daysAgo: 6 },
 ];
 
 export const storeSettings = {

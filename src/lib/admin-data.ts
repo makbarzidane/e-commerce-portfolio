@@ -16,7 +16,13 @@ export async function getAdminDashboardData() {
       getPrisma().product.count({ where: { isActive: true } }),
       getPrisma().order.count(),
       getPrisma().user.count(),
-      getPrisma().order.aggregate({ _sum: { grandTotal: true } }),
+      getPrisma().order.aggregate({
+        where: {
+          status: { not: "CANCELLED" },
+          payment: { is: { status: "PAID" } },
+        },
+        _sum: { grandTotal: true },
+      }),
     ]);
 
     return {
@@ -34,10 +40,10 @@ export async function getAdminDashboardData() {
     };
   } catch {
     const paidRevenue = adminOrders
-      .filter((order) => ["PAID"].includes(order.payment) && !["CANCELED", "REFUNDED"].includes(order.status))
+      .filter((order) => ["PAID"].includes(order.payment) && !["CANCELLED", "REFUNDED"].includes(order.status))
       .reduce((total, order) => total + order.total, 0);
     const uniqueCustomers = new Set(adminOrders.map((order) => order.customer));
-    const canceledCount = adminOrders.filter((order) => ["CANCELED", "REFUNDED"].includes(order.status)).length;
+    const canceledCount = adminOrders.filter((order) => ["CANCELLED", "REFUNDED"].includes(order.status)).length;
 
     return {
       stats: [
@@ -97,7 +103,7 @@ export async function getAdminSalesChartData(): Promise<AdminSalesChartPoint[]> 
       const dayOrders = adminOrders.filter((order) => (order.daysAgo ?? 0) === 6 - index);
       const total = dayOrders.reduce((sum, order) => sum + order.total, 0);
       const paidTotal = dayOrders
-        .filter((order) => order.payment === "PAID" && !["CANCELED", "REFUNDED"].includes(order.status))
+        .filter((order) => order.payment === "PAID" && !["CANCELLED", "REFUNDED"].includes(order.status))
         .reduce((sum, order) => sum + order.total, 0);
 
       return {

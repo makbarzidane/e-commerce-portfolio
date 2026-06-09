@@ -88,6 +88,11 @@ export function CheckoutForm({ cartItems, errorMessage, customerDefaults, paymen
 
   function updateLocalQuantity(id: string, quantity: number, stock: number) {
     const safeQuantity = Math.min(Math.max(0, quantity), stock);
+    const existing = localCartItems.find((item) => item.id === id);
+    if (existing) {
+      window.dispatchEvent(new CustomEvent("zimeira:cart-count", { detail: { delta: safeQuantity - existing.quantity } }));
+    }
+
     setLocalCartItems((current) => {
       if (safeQuantity < 1) return current.filter((item) => item.id !== id);
       return current.map((item) => (item.id === id ? { ...item, quantity: safeQuantity } : item));
@@ -96,6 +101,11 @@ export function CheckoutForm({ cartItems, errorMessage, customerDefaults, paymen
   }
 
   async function removeLocalItem(id: string) {
+    const existing = localCartItems.find((item) => item.id === id);
+    if (existing) {
+      window.dispatchEvent(new CustomEvent("zimeira:cart-count", { detail: { delta: -existing.quantity } }));
+    }
+
     setLocalCartItems((current) => current.filter((item) => item.id !== id));
     setSyncingIds((current) => Array.from(new Set([...current, id])));
     try {

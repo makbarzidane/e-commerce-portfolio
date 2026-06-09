@@ -3,6 +3,7 @@
 import bcrypt from "bcryptjs";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { createDemoResetCode, resetDemoPassword, saveDemoRegisteredCustomer } from "@/lib/demo-auth";
 import { sendOrderEmail } from "@/lib/email";
 import { getPrisma } from "@/lib/prisma";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
@@ -27,6 +28,11 @@ export async function registerCustomer(formData: FormData) {
 
   if (!isLikelyRealEmail(email)) {
     redirect(`/auth/login?mode=register&error=email-real-required&callbackUrl=${encodeURIComponent(callbackUrl)}`);
+  }
+
+  if (!process.env.DATABASE_URL) {
+    await saveDemoRegisteredCustomer({ name, email, password });
+    redirect(`${loginTarget}&demo=1`);
   }
 
   const existingUser = await getPrisma().user.findUnique({ where: { email } });
@@ -58,6 +64,11 @@ export async function requestPasswordResetCode(formData: FormData) {
 
   if (!isValidEmailSyntax(email)) {
     redirect("/auth/reset-password?sent=1");
+  }
+
+  if (!process.env.DATABASE_URL) {
+    const code = await createDemoResetCode(email);
+    redirect(`/auth/reset-password?sent=1&status=demo&email=${encodeURIComponent(email)}&devCode=${encodeURIComponent(code)}`);
   }
 
   const user = await getPrisma().user.findUnique({
@@ -114,6 +125,15 @@ export async function resetPasswordWithCode(formData: FormData) {
 
   if (!email || !/^[0-9]{6}$/.test(code) || password.length < 8) {
     redirect(`/auth/reset-password?error=reset-validation&email=${encodeURIComponent(email)}`);
+  }
+
+  if (!process.env.DATABASE_URL) {
+    const ok = await resetDemoPassword(email, code, password);
+    if (!ok) {
+      redirect(`/auth/reset-password?error=code-invalid&email=${encodeURIComponent(email)}`);
+    }
+
+    redirect("/auth/login?reset=success");
   }
 
   const resetCode = await getPrisma().passwordResetCode.findFirst({

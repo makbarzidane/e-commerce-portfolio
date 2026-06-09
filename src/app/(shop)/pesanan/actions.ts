@@ -21,6 +21,11 @@ export async function requestReturn(formData: FormData) {
     redirect(`/pesanan/${orderNumber}?error=return-validation`);
   }
 
+  if (!process.env.DATABASE_URL) {
+    await setFlashToast("Pengajuan retur demo berhasil disimulasikan. Data portfolio tidak disimpan permanen.");
+    redirect(`/pesanan/${orderNumber}?return=requested`);
+  }
+
   const order = await getPrisma().order.findFirst({
     where: { orderNumber, userId: session.user.id },
     include: { returnRequests: true },
@@ -57,6 +62,11 @@ export async function submitProductReview(formData: FormData) {
 
   if (!orderNumber || !productId || !Number.isFinite(rating) || rating < 1 || rating > 5 || comment.length < 5) {
     redirect(`/pesanan/${orderNumber}?error=review-validation`);
+  }
+
+  if (!process.env.DATABASE_URL) {
+    await setFlashToast("Review produk demo berhasil disimulasikan. Data portfolio akan kembali seperti semula.");
+    redirect(`/pesanan/${orderNumber}?review=saved`);
   }
 
   const order = await getPrisma().order.findFirst({

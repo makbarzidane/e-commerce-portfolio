@@ -5,7 +5,9 @@ import { getServerSession } from "next-auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
-import { getOrCreateCart } from "@/lib/cart";
+import { clearDemoCart, getCartLines, getOrCreateCart } from "@/lib/cart";
+import { demoCoupons } from "@/lib/demo-coupons";
+import { createDemoOrder } from "@/lib/demo-orders";
 import { sendOrderEmail } from "@/lib/email";
 import { createPayment } from "@/lib/integrations/payment";
 import { findShippingRate, getShippingRates } from "@/lib/integrations/shipping";
@@ -43,24 +45,11 @@ export async function createCheckoutOrder(formData: FormData) {
     redirect("/keranjang?auth=required");
   }
 
-  if (!process.env.DATABASE_URL) {
-    redirect("/keranjang?checkout=demo");
-  }
-
   if (!limit.ok) {
     redirect("/checkout?error=rate-limit");
   }
 
   try {
-    const user = await getPrisma().user.findUnique({
-      where: { id: session.user.id },
-      select: { phone: true, phoneVerifiedAt: true },
-    });
-    if (!user?.phone || !user.phoneVerifiedAt) {
-      target = "/akun?verifyPhone=required";
-      throw new Error("PHONE_UNVERIFIED");
-    }
-
     const customerName = String(formData.get("customerName") ?? session.user.name ?? "Customer Zimeira").trim();
     const customerEmail = String(formData.get("customerEmail") ?? session.user.email ?? "").trim();
     const customerPhone = normalizePhone(String(formData.get("customerPhone") ?? "").trim());
@@ -76,6 +65,65 @@ export async function createCheckoutOrder(formData: FormData) {
     if (!customerName || !customerEmail || !isValidPhone(customerPhone) || !province || !city || !district || !isValidPostalCode(postalCode) || addressLine.length < 10) {
       target = "/checkout?error=address";
       throw new Error("INVALID_ADDRESS");
+    }
+
+    if (!process.env.DATABASE_URL) {
+      const cartItems = await getCartLines();
+      if (!cartItems.length) {
+        target = "/keranjang";
+        throw new Error("EMPTY_CART");
+      }
+
+      if (cartItems.some((item) => !item.variant.isActive || item.quantity > item.variant.stock)) {
+        throw new Error("STOCK_UNAVAILABLE");
+      }
+
+      const subtotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+      const weightGram = Math.max(500, cartItems.reduce((total, item) => total + item.quantity * 250, 0));
+      const serverRates = await getShippingRates({
+        originCity: process.env.SHIPPING_ORIGIN_CITY ?? "Pagar Alam",
+        destinationCity: city,
+        originPostalCode: process.env.SHIPPING_ORIGIN_POSTAL_CODE,
+        destinationPostalCode: postalCode,
+        weightGram,
+      });
+      const shippingRate = serverRates.find((rate) => rate.id === shippingRateId) ?? findShippingRate(shippingRateId);
+      const coupon = couponCode ? demoCoupons.find((item) => item.code === couponCode && item.minPurchase <= subtotal) : null;
+
+      if (couponCode && !coupon) {
+        target = "/checkout?error=coupon";
+        throw new Error("INVALID_COUPON");
+      }
+
+      const discountTotal = coupon ? calculateDiscount(subtotal, coupon) : 0;
+      const order = await createDemoOrder({
+        userId: session.user.id,
+        customerName,
+        customerEmail,
+        customerPhone,
+        province,
+        city,
+        district,
+        postalCode,
+        addressLine,
+        cartItems,
+        shippingRate,
+        paymentMethodId,
+        discountTotal,
+      });
+
+      await clearDemoCart();
+      target = `/checkout/sukses/${order.orderNumber}`;
+      throw new Error("DEMO_ORDER_CREATED");
+    }
+
+    const user = await getPrisma().user.findUnique({
+      where: { id: session.user.id },
+      select: { phone: true, phoneVerifiedAt: true },
+    });
+    if (!user?.phone || !user.phoneVerifiedAt) {
+      target = "/akun?verifyPhone=required";
+      throw new Error("PHONE_UNVERIFIED");
     }
 
     if (customerPhone !== user.phone) {
@@ -257,7 +305,7 @@ export async function createCheckoutOrder(formData: FormData) {
       target = "/checkout?error=address";
     } else if ((error as Error).message === "PHONE_MISMATCH") {
       target = "/checkout?error=phone";
-    } else if ((error as Error).message !== "EMPTY_CART" && (error as Error).message !== "PHONE_UNVERIFIED") {
+    } else if ((error as Error).message !== "EMPTY_CART" && (error as Error).message !== "PHONE_UNVERIFIED" && (error as Error).message !== "DEMO_ORDER_CREATED") {
       target = "/checkout?error=database";
     }
   }

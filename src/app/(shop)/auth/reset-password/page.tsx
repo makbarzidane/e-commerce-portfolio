@@ -45,16 +45,18 @@ export default async function ResetPasswordPage({
           <CardContent className="grid gap-6">
             {params.sent === "1" ? (
               <Notice tone={params.status === "email-failed" ? "error" : "success"}>
-                {params.status === "email-failed"
+                {params.status === "demo"
+                  ? "Mode portfolio demo aktif. Kode reset ditampilkan di bawah agar alur reset password bisa dicoba tanpa layanan email production."
+                  : params.status === "email-failed"
                   ? "Kode berhasil dibuat, tapi email belum terkirim. Periksa konfigurasi Resend."
                   : "Jika email terdaftar, kode reset sudah dikirim. Periksa inbox atau folder spam."}
               </Notice>
             ) : null}
             {params.devCode ? (
               <div className="rounded-xl border border-primary/20 bg-secondary/70 p-3 text-sm">
-                <p className="font-medium text-foreground">Kode reset mode development</p>
+                <p className="font-medium text-foreground">Kode reset mode demo/development</p>
                 <p className="mt-2 text-2xl font-semibold tracking-[0.28em] text-primary">{params.devCode}</p>
-                <p className="mt-2 text-xs text-muted-foreground">Kode ini hanya ditampilkan saat `NODE_ENV` bukan production.</p>
+                <p className="mt-2 text-xs text-muted-foreground">Di production asli, kode ini dikirim lewat email Resend dan tidak ditampilkan di halaman.</p>
               </div>
             ) : null}
             {params.error ? <Notice tone="error">{getErrorMessage(params.error)}</Notice> : null}

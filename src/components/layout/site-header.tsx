@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
-import { Heart, ShoppingBag, UserRound } from "lucide-react";
+import { UserRound } from "lucide-react";
 import { LogoutButton } from "@/components/auth/logout-button";
+import { HeaderCartLink, HeaderWishlistLink } from "@/components/layout/header-actions";
 import { authOptions } from "@/lib/auth";
 import { buttonVariants } from "@/components/ui/button";
 import { getCartLines } from "@/lib/cart";
@@ -24,12 +25,12 @@ export async function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/82 shadow-sm shadow-primary/5 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-3">
-          <span className="flex size-10 items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20">
+      <div className="mx-auto flex min-h-14 w-full max-w-7xl items-center justify-between gap-3 px-3 py-2 sm:h-16 sm:px-6 sm:py-0 lg:px-8">
+        <Link href="/" className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 sm:size-10">
             ZI
           </span>
-          <span className="font-semibold tracking-wide">Zimeira Hijab Store</span>
+          <span className="truncate text-sm font-semibold tracking-wide sm:text-base">Zimeira Hijab Store</span>
         </Link>
 
         <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
@@ -40,38 +41,31 @@ export async function SiteHeader() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           {isLoggedIn ? (
             <>
-              <Link href="/wishlist" className={buttonVariants({ variant: "ghost", size: "icon", className: "relative" })} aria-label="Wishlist">
-                <Heart data-icon="only" />
-                {wishlistCount > 0 ? <Counter value={wishlistCount} /> : null}
-              </Link>
+              <HeaderWishlistLink initialCount={wishlistCount} />
               <Link href="/akun" aria-label="Akun saya" className={buttonVariants({ variant: "ghost", size: "icon" })}>
                 <UserRound data-icon="only" />
               </Link>
               <LogoutButton compact />
             </>
           ) : (
-            <Link href="/auth/login" className={buttonVariants({ variant: "outline", className: "px-3 text-xs sm:px-4 sm:text-sm" })}>
-              Login / Register
+            <Link href="/auth/login" className={buttonVariants({ variant: "outline", className: "h-9 px-2.5 text-xs sm:px-4 sm:text-sm" })}>
+              <span className="sm:hidden">Login</span>
+              <span className="hidden sm:inline">Login / Register</span>
             </Link>
           )}
-          <Link href="/keranjang" className={buttonVariants({ className: "relative" })}>
-            <ShoppingBag data-icon="inline-start" />
-            Keranjang
-            {cartCount > 0 ? <Counter value={cartCount} /> : null}
-          </Link>
+          <HeaderCartLink initialCount={cartCount} />
         </div>
       </div>
+      <nav className="mx-auto flex w-full max-w-7xl gap-2 overflow-x-auto px-3 pb-2 text-xs font-medium text-muted-foreground md:hidden">
+        {navItems.map((item) => (
+          <Link key={item.href} href={item.href} className="shrink-0 rounded-full border bg-background/70 px-3 py-1.5 transition hover:border-primary hover:text-foreground">
+            {item.label}
+          </Link>
+        ))}
+      </nav>
     </header>
-  );
-}
-
-function Counter({ value }: { value: number }) {
-  return (
-    <span className="absolute -right-1 -top-1 flex min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-semibold text-accent-foreground shadow-sm">
-      {value > 99 ? "99+" : value}
-    </span>
   );
 }

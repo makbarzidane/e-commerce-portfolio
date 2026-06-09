@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { CheckoutForm } from "@/components/checkout/checkout-form";
 import { authOptions } from "@/lib/auth";
 import { getCartLines } from "@/lib/cart";
+import { demoCoupons } from "@/lib/demo-coupons";
 import { getShippingRates } from "@/lib/integrations/shipping";
 import { paymentMethods } from "@/lib/integrations/payment";
 import { getPrisma } from "@/lib/prisma";
@@ -17,33 +18,34 @@ export default async function CheckoutPage({
     redirect("/keranjang?auth=required");
   }
 
-  if (!process.env.DATABASE_URL) {
-    redirect("/keranjang?checkout=demo");
-  }
-
-  const customer = await getPrisma().user.findUnique({
-    where: { id: session.user.id },
-    select: { phone: true, phoneVerifiedAt: true },
-  });
+  const isPortfolioDemo = !process.env.DATABASE_URL;
+  const customer = isPortfolioDemo
+    ? { phone: "+6281234567890", phoneVerifiedAt: new Date() }
+    : await getPrisma().user.findUnique({
+        where: { id: session.user.id },
+        select: { phone: true, phoneVerifiedAt: true },
+      });
 
   if (!customer?.phone || !customer.phoneVerifiedAt) {
     redirect("/akun?verifyPhone=required");
   }
 
   const cartItems = await getCartLines();
-  const coupons = await getPrisma().coupon.findMany({
-    where: { isActive: true },
-    orderBy: { createdAt: "desc" },
-    select: {
-      code: true,
-      description: true,
-      discountPercent: true,
-      discountAmount: true,
-      minPurchase: true,
-      startsAt: true,
-      endsAt: true,
-    },
-  });
+  const coupons = isPortfolioDemo
+    ? demoCoupons
+    : await getPrisma().coupon.findMany({
+        where: { isActive: true },
+        orderBy: { createdAt: "desc" },
+        select: {
+          code: true,
+          description: true,
+          discountPercent: true,
+          discountAmount: true,
+          minPurchase: true,
+          startsAt: true,
+          endsAt: true,
+        },
+      });
   const shippingRates = await getShippingRates({
     originCity: "Pagar Alam",
     destinationCity: "Pagar Alam",
@@ -71,8 +73,8 @@ export default async function CheckoutPage({
         paymentMethods={paymentMethods}
         coupons={coupons.map((coupon) => ({
           ...coupon,
-          startsAt: coupon.startsAt?.toISOString() ?? null,
-          endsAt: coupon.endsAt?.toISOString() ?? null,
+          startsAt: coupon.startsAt instanceof Date ? coupon.startsAt.toISOString() : coupon.startsAt,
+          endsAt: coupon.endsAt instanceof Date ? coupon.endsAt.toISOString() : coupon.endsAt,
         }))}
         shippingRates={shippingRates}
       />

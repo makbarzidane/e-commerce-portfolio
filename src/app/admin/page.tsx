@@ -150,8 +150,8 @@ function formatOrderStatus(status: string) {
     PENDING: "Menunggu",
     PROCESSING: "Diproses",
     SHIPPED: "Dikirim",
-    COMPLETED: "Selesai",
-    CANCELED: "Dibatalkan",
+    DELIVERED: "Selesai",
+    CANCELLED: "Dibatalkan",
     REFUNDED: "Refunded",
   };
 

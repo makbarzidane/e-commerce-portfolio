@@ -48,6 +48,11 @@ export function ProductPurchasePanel({ productSlug, materials, variants }: { pro
         const message = mode === "buy" ? "Produk siap dibeli. Membuka checkout..." : "Produk berhasil masuk keranjang.";
         setNotice({ tone: "success", message });
         toast(message);
+        window.dispatchEvent(
+          new CustomEvent("zimeira:cart-count", {
+            detail: { delta: selections.reduce((total, selection) => total + selection.quantity, 0) },
+          }),
+        );
         if (mode === "buy") {
           window.location.href = "/checkout";
         }

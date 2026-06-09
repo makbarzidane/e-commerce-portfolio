@@ -17,8 +17,8 @@ export function ProductCard({ product }: { product: StoreProduct; wishlistReturn
 
   return (
     <Card className="motion-card group overflow-hidden rounded-2xl border-border/80 bg-card shadow-sm">
-      <Link href={`/produk/${product.slug}`} className="relative block aspect-[1/1.05] overflow-hidden bg-[linear-gradient(145deg,var(--muted),#fffaf6)]">
-        <Image src={product.image} alt={product.name} fill className="object-contain p-8 transition duration-500 group-hover:scale-105 sm:p-9" sizes="(max-width: 768px) 50vw, 25vw" />
+      <Link href={`/produk/${product.slug}`} className="relative block aspect-[1/0.92] overflow-hidden bg-[linear-gradient(145deg,var(--muted),#fffaf6)] sm:aspect-[1/1.05]">
+        <Image src={product.image} alt={product.name} fill className="object-contain p-4 transition duration-500 group-hover:scale-105 sm:p-8 lg:p-9" sizes="(max-width: 768px) 50vw, 25vw" />
         <div className="pointer-events-none absolute inset-x-5 bottom-5 h-14 rounded-full bg-foreground/10 blur-2xl opacity-35 transition group-hover:opacity-55" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(255,255,255,0.72),transparent_34%),linear-gradient(180deg,transparent,rgba(155,104,112,0.08))]" />
         <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
@@ -30,13 +30,13 @@ export function ProductCard({ product }: { product: StoreProduct; wishlistReturn
           ) : null}
         </div>
       </Link>
-      <CardContent className="flex min-h-44 flex-col gap-3 p-4">
-        <div className="flex items-start justify-between gap-3">
+      <CardContent className="flex min-h-36 flex-col gap-2.5 p-3 sm:min-h-44 sm:gap-3 sm:p-4">
+        <div className="flex items-start justify-between gap-2 sm:gap-3">
           <div className="min-w-0">
-            <Link href={`/produk/${product.slug}`} className="line-clamp-2 font-semibold leading-5 hover:text-primary">
+            <Link href={`/produk/${product.slug}`} className="line-clamp-2 text-sm font-semibold leading-5 hover:text-primary sm:text-base">
               {product.name}
             </Link>
-            <p className="mt-1 text-sm text-muted-foreground">{product.category}</p>
+            <p className="mt-1 text-xs text-muted-foreground sm:text-sm">{product.category}</p>
           </div>
           <WishlistToggleButton productSlug={product.slug} initialWishlisted={isWishlisted} iconOnly className={isWishlisted ? "ring-2 ring-primary/15" : ""} />
         </div>
@@ -51,20 +51,20 @@ export function ProductCard({ product }: { product: StoreProduct; wishlistReturn
           ))}
         </div>
         <div className="mt-auto">
-          <p className="font-semibold text-foreground">{formatCurrency(price)}</p>
+          <p className="text-sm font-semibold text-foreground sm:text-base">{formatCurrency(price)}</p>
           {product.discountPrice ? (
-            <p className="text-sm text-muted-foreground line-through">{formatCurrency(product.normalPrice)}</p>
+            <p className="text-xs text-muted-foreground line-through sm:text-sm">{formatCurrency(product.normalPrice)}</p>
           ) : null}
         </div>
       </CardContent>
-      <CardFooter className="grid gap-2 border-t bg-muted/35 p-3">
+      <CardFooter className="grid gap-2 border-t bg-muted/35 p-2.5 sm:p-3">
         {defaultVariant ? (
           <div className="grid grid-cols-2 gap-2">
-            <AddToCartButton productSlug={product.slug} variantSku={defaultVariant.sku} variant="outline" className="w-full rounded-xl px-2 text-xs sm:text-sm" />
-            <AddToCartButton productSlug={product.slug} variantSku={defaultVariant.sku} mode="buy" variant="default" className="w-full rounded-xl px-2 text-xs sm:text-sm" />
+            <AddToCartButton productSlug={product.slug} variantSku={defaultVariant.sku} variant="outline" className="h-9 w-full rounded-xl px-1.5 text-[11px] sm:px-2 sm:text-sm" />
+            <AddToCartButton productSlug={product.slug} variantSku={defaultVariant.sku} mode="buy" variant="default" className="h-9 w-full rounded-xl px-1.5 text-[11px] sm:px-2 sm:text-sm" />
           </div>
         ) : null}
-        <Link href={`/produk/${product.slug}`} className={buttonVariants({ variant: "secondary", className: "w-full rounded-xl shadow-sm shadow-primary/10" })}>
+        <Link href={`/produk/${product.slug}`} className={buttonVariants({ variant: "secondary", className: "h-9 w-full rounded-xl px-2 text-xs shadow-sm shadow-primary/10 sm:text-sm" })}>
           <Eye data-icon="inline-start" />
           Lihat Detail
         </Link>

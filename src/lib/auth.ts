@@ -2,28 +2,10 @@ import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
+import { demoUsers, getDemoCredentialsUser } from "@/lib/demo-auth";
 import { getPrisma } from "@/lib/prisma";
 
 const googleAuthEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
-const demoUsers = [
-  {
-    id: "demo-admin",
-    name: "Admin Zimeira",
-    email: "admin@zimeirahijab.test",
-    role: "ADMIN" as const,
-  },
-  {
-    id: "demo-customer",
-    name: "Nadia Zimeira",
-    email: "customer@zimeirahijab.test",
-    role: "CUSTOMER" as const,
-  },
-];
-
-function getDemoUser(email: string, password?: string) {
-  if (process.env.DATABASE_URL || password !== "password123") return null;
-  return demoUsers.find((user) => user.email === email) ?? null;
-}
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -69,7 +51,7 @@ export const authOptions: NextAuthOptions = {
               role: user.role,
             };
           } catch {
-            return getDemoUser(email, credentials.password);
+            return getDemoCredentialsUser(email, credentials.password);
           }
         },
       }),
@@ -101,6 +83,11 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
     async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = (user as { role?: "CUSTOMER" | "ADMIN" }).role ?? "CUSTOMER";
+      }
+
       const email = user?.email ?? token.email;
       if (email) {
         try {

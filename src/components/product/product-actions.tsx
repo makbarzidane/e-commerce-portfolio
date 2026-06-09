@@ -29,6 +29,7 @@ export function AddToCartButton({ productSlug, variantSku, mode = "cart", varian
       if (result.ok) {
         setAdded(true);
         toast(mode === "buy" ? "Produk siap dibeli." : "Produk berhasil masuk keranjang.");
+        window.dispatchEvent(new CustomEvent("zimeira:cart-count", { detail: { delta: 1 } }));
         if (mode === "buy") {
           window.location.href = "/checkout";
         }
@@ -71,7 +72,11 @@ export function WishlistToggleButton({
       const payload = await response.json().catch(() => null) as { ok?: boolean; wishlisted?: boolean; message?: string } | null;
 
       if (response.ok && payload?.ok) {
+        const wasWishlisted = wishlisted;
         setWishlisted(Boolean(payload.wishlisted));
+        if (Boolean(payload.wishlisted) !== wasWishlisted) {
+          window.dispatchEvent(new CustomEvent("zimeira:wishlist-count", { detail: { delta: payload.wishlisted ? 1 : -1 } }));
+        }
         toast(payload.wishlisted ? "Produk berhasil ditambahkan ke wishlist." : "Produk berhasil dihapus dari wishlist.", payload.wishlisted ? "success" : "info");
         return;
       }

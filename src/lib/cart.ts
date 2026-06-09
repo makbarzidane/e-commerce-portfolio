@@ -195,6 +195,16 @@ export async function removeDemoCartItem(id: string) {
   return true;
 }
 
+export async function clearDemoCart() {
+  const cookieStore = await cookies();
+  cookieStore.set(demoCartCookie, "", {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
+}
+
 async function getDemoCartLines(): Promise<CartLine[]> {
   const cookieStore = await cookies();
   const items = readDemoCart(cookieStore.get(demoCartCookie)?.value);

@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
+import { markDemoOrderPaid } from "@/lib/demo-orders";
 import { getPrisma } from "@/lib/prisma";
 
 export async function simulatePaymentPaid(formData: FormData) {
@@ -15,6 +16,15 @@ export async function simulatePaymentPaid(formData: FormData) {
 
   const orderNumber = String(formData.get("orderNumber") ?? "");
   if (!orderNumber) return;
+
+  if (!process.env.DATABASE_URL) {
+    await markDemoOrderPaid(orderNumber, session.user.id);
+    revalidatePath(`/checkout/sukses/${orderNumber}`);
+    revalidatePath(`/pesanan/${orderNumber}`);
+    revalidatePath("/pesanan");
+    revalidatePath("/lacak");
+    return;
+  }
 
   const order = await getPrisma().order.findUnique({
     where: { orderNumber },

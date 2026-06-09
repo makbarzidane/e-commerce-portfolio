@@ -1,5 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { getDemoOrdersForUser } from "@/lib/demo-orders";
 import { getPrisma } from "@/lib/prisma";
 import { mapProduct } from "@/lib/store-data";
 
@@ -16,7 +17,23 @@ export async function getCurrentCustomer() {
       },
     });
   } catch {
-    return null;
+    const orders = await getDemoOrdersForUser(session.user.id);
+    const now = new Date();
+    return {
+      id: session.user.id,
+      name: session.user.name ?? "Customer Zimeira",
+      email: session.user.email ?? "customer@zimeirahijab.test",
+      password: null,
+      phone: "+6281234567890",
+      phoneVerifiedAt: now,
+      role: session.user.role ?? "CUSTOMER",
+      image: session.user.image ?? null,
+      emailVerified: now,
+      createdAt: now,
+      updatedAt: now,
+      shippingAddresses: [],
+      _count: { orders: orders.length, wishlistItems: 0 },
+    };
   }
 }
 
@@ -44,7 +61,19 @@ export async function getCustomerOrders() {
       items: order.items.reduce((total, item) => total + item.quantity, 0),
     }));
   } catch {
-    return [];
+    const orders = await getDemoOrdersForUser(session.user.id);
+    return orders.map((order) => ({
+      id: order.orderNumber,
+      date: order.createdAt.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }),
+      status: order.status,
+      paymentStatus: order.payment?.status ?? "UNPAID",
+      trackingNumber: order.trackingNumber,
+      shippingProvider: order.shippingProvider,
+      shippingService: order.shippingService,
+      shippingEstimate: order.shippingEstimate,
+      total: order.grandTotal,
+      items: order.items.reduce((total, item) => total + item.quantity, 0),
+    }));
   }
 }
 
